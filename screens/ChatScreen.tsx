@@ -1,4 +1,3 @@
-// screens/ChatScreen.tsx
 import React, { useState } from 'react';
 import {View, TextInput, TouchableOpacity, ActivityIndicator, FlatList, Text,} from 'react-native';
 import { aiChat } from '../api/ai'
@@ -37,26 +36,6 @@ export default function ChatScreen() {
     } catch (e: any) {
       let friendly =
         "Sorry—I'm having trouble replying right now. I'm still here with you.";
-
-      if (e?.message === 'HF_TOKEN_MISSING') {
-        friendly =
-          'Setup issue: missing Hugging Face token. Add EXPO_PUBLIC_HF_TOKEN in .env and restart Expo with cache clear.';
-      } else if (e?.message === 'HF_401_UNAUTHORIZED') {
-        friendly =
-          'Token rejected (401). Double-check your HF token and that “Make calls to Inference Providers” is enabled.';
-      } else if (e?.message === 'HF_403_FORBIDDEN') {
-        friendly =
-          'Forbidden (403). If testing in the web browser, this is likely CORS—run on a device/emulator with Expo Go.';
-      } else if (e?.message === 'HF_404_MODEL_NOT_FOUND') {
-        friendly =
-          'Model not found (404). Check EXPO_PUBLIC_HF_MODEL_ID (e.g., mistralai/Mistral-7B-Instruct-v0.2).'
-      } else if (e?.message === 'HF_503_MODEL_LOADING') {
-        friendly =
-          'Model is loading or busy (503). Give it a moment and try again.';
-      } else if (e?.message === 'HF_429_RATE_LIMIT') {
-        friendly = 'Rate limit hit (429). Please wait a bit and retry.';
-      }
-
       const errMsg: Msg = { id: makeId(), role: 'assistant', content: friendly };
       setMessages((prev) => [...prev, errMsg]);
     } finally {
@@ -65,7 +44,10 @@ export default function ChatScreen() {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#0b0b14', padding: 16 }}>
+    <View style={{ flex: 1, 
+    backgroundColor: '#0b0b14', 
+    padding: 16 
+    }}>
       <FlatList
         data={messages}
         keyExtractor={(m) => m.id}
@@ -74,7 +56,11 @@ export default function ChatScreen() {
         )}
       />
 
-      <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+      <View style={{ 
+        flexDirection: 'row', 
+        gap: 8, 
+        marginTop: 8 
+        }}>
         <TextInput
           value={input}
           onChangeText={setInput}
@@ -103,7 +89,10 @@ export default function ChatScreen() {
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={{ color: '#fff', fontWeight: '600' }}>Send</Text>
+            <Text style={{ 
+              color: '#fff', 
+              fontWeight: '600' 
+            }}>Send</Text>
           )}
         </TouchableOpacity>
       </View>

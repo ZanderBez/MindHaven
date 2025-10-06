@@ -18,7 +18,10 @@ export default function MessageBubble({
         maxWidth: '85%',
       }}
     >
-      <Text style={{ color: '#e6e6f0', fontSize: 16 }}>{content}</Text>
+      <Text style={{ 
+        color: '#e6e6f0', 
+        fontSize: 16 
+        }}>{content}</Text>
     </View>
   );
 }

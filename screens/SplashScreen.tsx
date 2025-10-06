@@ -1,38 +1,35 @@
-import React, { useEffect, useRef } from "react"
+import React from "react"
 import { ImageBackground, StyleSheet, View, StatusBar } from "react-native"
-import { Video, ResizeMode } from "expo-av"
+import { useVideoPlayer, VideoView } from "expo-video"
+import { useEventListener } from "expo"
+import { useEvent } from "expo"
 import { useNavigation } from "@react-navigation/native"
 import type { NativeStackNavigationProp } from "@react-navigation/native-stack"
 
 const SplashScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<any>>()
-  const videoRef = useRef<Video>(null)
 
-  useEffect(() => {
-    const play = async () => {
-      try { await videoRef.current?.playAsync() } catch {}
-    }
-    play()
-  }, [])
+  const player = useVideoPlayer(require("../assets/MindHavenLogo.mp4"), (p) => {
+    p.loop = false
+    p.play()
+  })
 
-  const onStatusUpdate = (status: any) => {
-    if (status?.isLoaded && status.didJustFinish) {
-      navigation.replace("SignUp")
-    }
-  }
+  const ended = useEvent(player, "playToEnd")
+
+   useEventListener(player, "playToEnd", () => {
+    navigation.replace("SignUp")
+  })
 
   return (
     <ImageBackground source={require("../assets/Background.png")} style={styles.container} resizeMode="cover">
       <StatusBar hidden />
-      <View style={styles.videoWrap}>
-        <Video
-          ref={videoRef}
-          source={require("../assets/MindHavenLogo.mp4")}
+      <View style={styles.videoWrap} pointerEvents="none">
+        <VideoView
+          player={player}
           style={styles.video}
-          resizeMode={ResizeMode.CONTAIN}
-          shouldPlay
-          isLooping={false}
-          onPlaybackStatusUpdate={onStatusUpdate}
+          contentFit="contain"
+          nativeControls={false}
+          fullscreenOptions={{ enable: false }}
         />
       </View>
     </ImageBackground>
