@@ -1,17 +1,20 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { initializeApp, getApps, getApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAn9A89av4ZDnfUmxLIIrxKYuN-8rI_TX0",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY as string,
   authDomain: "mindhaven-2fb22.firebaseapp.com",
   projectId: "mindhaven-2fb22",
-  storageBucket: "mindhaven-2fb22.firebasestorage.app",
+  storageBucket: "mindhaven-2fb22.appspot.com",
   messagingSenderId: "198042888095",
-  appId: "1:198042888095:web:b2e5aefc4e4b8c8d93bfaa"
-};
+  appId: "1:198042888095:web:b2e5aefc4e4b8c8d93bfaa",
+} as const;
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export const storage = getStorage(app);
+export default app;
