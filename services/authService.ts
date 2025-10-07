@@ -1,40 +1,40 @@
 import { auth, db } from "../firebase";
-import { createUserWithEmailAndPassword, updateProfile, signInWithEmailAndPassword, signOut, UserCredential } from "firebase/auth";
-import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, UserCredential } from "firebase/auth";
+import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 
-export const registerUser = async (name: string, email: string, password: string): Promise<UserCredential> => {
+async function upsertUserDoc(uid: string, payload: Record<string, any>) {
+  try {
+    await setDoc(doc(db, "users", uid), payload, { merge: true });
+  } catch {}
+}
+
+export async function registerUser(name: string, email: string, password: string): Promise<UserCredential> {
   const cred = await createUserWithEmailAndPassword(auth, email, password);
-  await updateProfile(cred.user, { displayName: name, photoURL: null as unknown as string });
-  await setDoc(doc(db, "users", cred.user.uid), {
-    name,
+  if (name?.trim()) {
+    await updateProfile(cred.user, { displayName: name.trim() });
+  }
+  void upsertUserDoc(cred.user.uid, {
+    name: name?.trim() || null,
     email: cred.user.email,
-    photoURL: null,
-    createdAt: serverTimestamp()
+    photoURL: cred.user.photoURL ?? null,
+    createdAt: serverTimestamp(),
+    lastLoginAt: serverTimestamp()
   });
   return cred;
-};
+}
 
-export const loginUser = async (email: string, password: string) => {
+export async function loginUser(email: string, password: string) {
   const cred = await signInWithEmailAndPassword(auth, email, password);
-  const snap = await getDoc(doc(db, "users", cred.user.uid));
-  return { user: cred.user, data: snap.exists() ? snap.data() : null };
-};
-
-export const logoutUser = async () => {
-  await signOut(auth);
-};
-
-export const syncUserProfile = async (params: { uid: string; name?: string | null; photoURL?: string | null; email?: string | null }) => {
-  const { uid, name, photoURL } = params;
-  if (auth.currentUser && auth.currentUser.uid === uid) {
-    await updateProfile(auth.currentUser, {
-      displayName: name ?? auth.currentUser.displayName ?? "",
-      photoURL: (photoURL as unknown as string) ?? (auth.currentUser.photoURL as string) ?? (null as unknown as string)
-    });
-  }
-  const ref = doc(db, "users", uid);
-  await updateDoc(ref, {
-    ...(name !== undefined ? { name } : {}),
-    ...(photoURL !== undefined ? { photoURL } : {})
+  void upsertUserDoc(cred.user.uid, {
+    name: cred.user.displayName ?? null,
+    email: cred.user.email,
+    photoURL: cred.user.photoURL ?? null,
+    updatedAt: serverTimestamp(),
+    lastLoginAt: serverTimestamp()
   });
-};
+  return cred.user;
+}
+
+export async function logoutUser() {
+  await auth.signOut();
+}
