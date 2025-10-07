@@ -68,8 +68,8 @@ export default function ChatScreen() {
           placeholderTextColor="#8e92a7"
           style={{
             flex: 1,
-            backgroundColor: '#1c2030',
-            color: '#fff',
+            backgroundColor: '#ffffffff',
+            color: '#000000ff',
             paddingHorizontal: 12,
             paddingVertical: 14,
             borderRadius: 12,
@@ -80,7 +80,7 @@ export default function ChatScreen() {
         <TouchableOpacity
           onPress={send}
           style={{
-            backgroundColor: '#4c5cff',
+            backgroundColor: '#4c00ffff',
             paddingHorizontal: 16,
             borderRadius: 12,
             justifyContent: 'center',
