@@ -46,9 +46,6 @@ export async function aiChat(userText: string, history: ChatMsg[]) {
     throw new Error(`AI_${res.status}`);
   }
 
-  const content =
-    data?.choices?.[0]?.message?.content ??
-    data?.choices?.[0]?.delta?.content ?? '';
-
+  const content = data?.choices?.[0]?.message?.content ?? '';
   return trim(content);
 }

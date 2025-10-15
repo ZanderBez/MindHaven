@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   logo: {
-    marginTop: 1,
+    marginTop: 150,
     width: 700,
     height: 400
   },
