@@ -17,7 +17,7 @@ export default function MoodHeader({ onPressStart }: Props) {
     >
       <View style={styles.topRow}>
         <Text style={styles.title}>Today mood</Text>
-        <Feather name="chevron-down" size={18} />
+        <Feather name="chevron-down" size={18} color="#FFF" />
       </View>
 
       <Text style={styles.date}>Aug 6 2025</Text>
@@ -80,12 +80,14 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: '700'
+    fontWeight: '700',
+    color: '#FFF'
   },
   date: {
     fontSize: 14,
     marginTop: 6,
-    marginBottom: 8
+    marginBottom: 8,
+    color: '#FFF'
   },
   weekRow: {
     flexDirection: 'row',
@@ -98,14 +100,15 @@ const styles = StyleSheet.create({
   },
   dayLabel: {
     fontSize: 11,
-    opacity: 0.9
+    opacity: 0.95,
+    color: '#FFF'
   },
   moodDot: {
     width: 26,
     height: 26,
     borderRadius: 13,
     borderWidth: 2,
-    borderColor: 'rgba(155,210,255,0.9)',
+    borderColor: 'rgba(200,230,255,0.9)',
     marginVertical: 4
   },
   moodDotFilled: {
@@ -116,7 +119,8 @@ const styles = StyleSheet.create({
     marginVertical: 4
   },
   dayNum: {
-    fontSize: 12
+    fontSize: 12,
+    color: '#FFF'
   },
   cta: {
     alignSelf: 'flex-start',
@@ -126,16 +130,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 12,
-    backgroundColor: 'rgba(0,0,0,0.18)',
+    backgroundColor: 'rgba(0,0,0,0.28)',
     marginBottom: 6
   },
   ctaText: {
     fontSize: 13,
-    fontWeight: '600'
-  },
-  link: {
-    fontSize: 13,
-    textDecorationLine: 'underline',
-    opacity: 0.95
+    fontWeight: '600',
+    color: '#FFF'
   }
 })

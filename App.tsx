@@ -10,6 +10,9 @@ import SplashScreen from "./screens/SplashScreen"
 import SignUpScreen from "./screens/SignUpScreen"
 import SignInScreen from "./screens/SignInScreen"
 import HomeScreen from "./screens/HomeScreen"
+import JournalScreen from './screens/JournalScreen'
+import ProfileScreen from './screens/ProfileScreen'
+
 
 setLogLevel("error")
 
@@ -27,6 +30,8 @@ export default function App() {
           <Stack.Screen name="SignUp" component={SignUpScreen} />
           <Stack.Screen name="SignIn" component={SignInScreen} />
           <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Journal" component={JournalScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

@@ -1,42 +1,36 @@
-import React, { useState } from "react";
-import { View, Text, TextInput, Pressable, ActivityIndicator, Alert, StyleSheet, ImageBackground, Image, ScrollView, Platform, KeyboardAvoidingView } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { registerUser } from "../services/authService";
+import React, { useState } from "react"
+import { View, Text, TextInput, Pressable, ActivityIndicator, Alert, StyleSheet, ImageBackground, Image, ScrollView, Platform, KeyboardAvoidingView, TouchableOpacity } from "react-native"
+import { useNavigation } from "@react-navigation/native"
+import { Feather } from "@expo/vector-icons"
+import { registerUser } from "../services/authService"
 
 export default function SignUpScreen() {
-  const navigation = useNavigation<any>();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const navigation = useNavigation<any>()
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirm, setConfirm] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const onSubmit = async () => {
-    setError(null);
-    if (!name.trim() || !email.trim() || !password || !confirm) {
-      setError("Please complete all fields.");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
-    if (password !== confirm) {
-      setError("Passwords do not match.");
-      return;
-    }
-    setLoading(true);
+    setError(null)
+    if (!name.trim() || !email.trim() || !password || !confirm) { setError("Please complete all fields."); return }
+    if (password.length < 6) { setError("Password must be at least 6 characters."); return }
+    if (password !== confirm) { setError("Passwords do not match."); return }
+    setLoading(true)
     try {
-      await registerUser(name.trim(), email.trim(), password);
-      Alert.alert("Success", "Account created");
-      navigation.navigate("Home");
+      await registerUser(name.trim(), email.trim(), password)
+      Alert.alert("Success", "Account created")
+      navigation.navigate("Home")
     } catch (e: any) {
-      setError(e?.message ?? "Failed to create account.");
+      setError(e?.message ?? "Failed to create account.")
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.select({ ios: "padding", android: undefined })}>
@@ -45,11 +39,9 @@ export default function SignUpScreen() {
           <View style={styles.header}>
             <Image source={require("../assets/mindhaven-logo.png")} style={styles.logo} resizeMode="contain" />
           </View>
-
           <ScrollView contentContainerStyle={styles.bottomFill} keyboardShouldPersistTaps="handled">
             <View style={styles.card}>
               <Text style={styles.welcome}>WELCOME.</Text>
-
               <Text style={styles.label}>Name</Text>
               <TextInput
                 style={styles.input}
@@ -58,7 +50,6 @@ export default function SignUpScreen() {
                 onChangeText={setName}
                 autoCapitalize="words"
               />
-
               <Text style={styles.label}>Email</Text>
               <TextInput
                 style={styles.input}
@@ -68,35 +59,39 @@ export default function SignUpScreen() {
                 autoCapitalize="none"
                 keyboardType="email-address"
               />
-
               <Text style={styles.label}>Password</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="password"
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-
+              <View style={styles.passwordRow}>
+                <TextInput
+                  style={[styles.input, { flex: 1 }]}
+                  placeholder="password"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry={!showPassword}
+                />
+                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.iconWrap}>
+                  <Feather name={showPassword ? "eye-off" : "eye"} size={20} color="#333333" />
+                </TouchableOpacity>
+              </View>
               <Text style={styles.label}>Confirm Password</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="confirm password"
-                value={confirm}
-                onChangeText={setConfirm}
-                secureTextEntry
-              />
-
+              <View style={styles.passwordRow}>
+                <TextInput
+                  style={[styles.input, { flex: 1 }]}
+                  placeholder="confirm password"
+                  value={confirm}
+                  onChangeText={setConfirm}
+                  secureTextEntry={!showConfirm}
+                />
+                <TouchableOpacity onPress={() => setShowConfirm(!showConfirm)} style={styles.iconWrap}>
+                  <Feather name={showConfirm ? "eye-off" : "eye"} size={20} color="#333333" />
+                </TouchableOpacity>
+              </View>
               {error ? <Text style={styles.error}>{error}</Text> : null}
-
               <View style={styles.loginRow}>
                 <Text style={styles.muted}>Already have an account </Text>
                 <Text onPress={() => navigation.navigate("SignIn")} style={styles.loginLink}>Log In</Text>
                 <Text style={styles.muted}> ?</Text>
               </View>
-
               <View style={styles.divider} />
-
               <Pressable style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]} onPress={onSubmit} disabled={loading}>
                 {loading ? <ActivityIndicator /> : <Text style={styles.buttonText}>SIGN UP</Text>}
               </Pressable>
@@ -105,7 +100,7 @@ export default function SignUpScreen() {
         </View>
       </ImageBackground>
     </KeyboardAvoidingView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -121,7 +116,7 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0)" 
+    backgroundColor: "rgba(0,0,0,0)"
   },
   header: {
     paddingTop: 48,
@@ -131,15 +126,9 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   logo: {
-    marginTop: 55,
-    width: "100%",
+    marginTop: 1,
+    width: 700,
     height: 400
-  },
-  tagline: {
-    marginTop: 6,
-    letterSpacing: 1,
-    fontSize: 10,
-    color: "#FFFFFF"
   },
   bottomFill: {
     flexGrow: 1,
@@ -172,6 +161,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 12,
     backgroundColor: "#FFFFFF"
+  },
+  passwordRow: {
+    flexDirection: "row",
+    alignItems: "center"
+  },
+  iconWrap: {
+    position: "absolute",
+    right: 12,
+    padding: 4
   },
   error: {
     color: "crimson",
@@ -212,4 +210,4 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     letterSpacing: 1
   }
-});
+})
