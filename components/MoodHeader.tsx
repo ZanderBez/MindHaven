@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Feather } from '@expo/vector-icons'
@@ -8,6 +8,34 @@ type Props = {
 }
 
 export default function MoodHeader({ onPressStart }: Props) {
+  const today = useMemo(() => new Date(), [])
+  const displayDate = useMemo(() => {
+    const m = today.toLocaleString('en-US', { month: 'short' })
+    const d = today.getDate()
+    const y = today.getFullYear()
+    return `${m} ${d} ${y}`
+  }, [today])
+
+  const week = useMemo(() => {
+    const start = new Date(today)
+    const day = start.getDay()
+    start.setHours(0, 0, 0, 0)
+    start.setDate(start.getDate() - day)
+    return Array.from({ length: 7 }, (_, i) => {
+      const dt = new Date(start)
+      dt.setDate(start.getDate() + i)
+      return {
+        key: i,
+        label: dt.toLocaleString('en-US', { weekday: 'short' }),
+        num: dt.getDate(),
+        isToday:
+          dt.getFullYear() === today.getFullYear() &&
+          dt.getMonth() === today.getMonth() &&
+          dt.getDate() === today.getDate()
+      }
+    })
+  }, [today])
+
   return (
     <LinearGradient
       colors={['rgba(129,199,245,0.55)', 'rgba(129,118,245,0.55)', 'rgba(118,45,165,0.55)']}
@@ -20,44 +48,16 @@ export default function MoodHeader({ onPressStart }: Props) {
         <Feather name="chevron-down" size={18} color="#FFF" />
       </View>
 
-      <Text style={styles.date}>Aug 6 2025</Text>
+      <Text style={styles.date}>{displayDate}</Text>
 
       <View style={styles.weekRow}>
-        <View style={styles.dayCol}>
-          <Text style={styles.dayLabel}>Sun</Text>
-          <View style={styles.moodDotFilled} />
-          <Text style={styles.dayNum}>6</Text>
-        </View>
-        <View style={styles.dayCol}>
-          <Text style={styles.dayLabel}>Mon</Text>
-          <View style={styles.moodDot} />
-          <Text style={styles.dayNum}>7</Text>
-        </View>
-        <View style={styles.dayCol}>
-          <Text style={styles.dayLabel}>Tue</Text>
-          <View style={styles.moodDot} />
-          <Text style={styles.dayNum}>8</Text>
-        </View>
-        <View style={styles.dayCol}>
-          <Text style={styles.dayLabel}>Wed</Text>
-          <View style={styles.moodDot} />
-          <Text style={styles.dayNum}>9</Text>
-        </View>
-        <View style={styles.dayCol}>
-          <Text style={styles.dayLabel}>Thu</Text>
-          <View style={styles.moodDot} />
-          <Text style={styles.dayNum}>10</Text>
-        </View>
-        <View style={styles.dayCol}>
-          <Text style={styles.dayLabel}>Fri</Text>
-          <View style={styles.moodDot} />
-          <Text style={styles.dayNum}>11</Text>
-        </View>
-        <View style={styles.dayCol}>
-          <Text style={styles.dayLabel}>Sat</Text>
-          <View style={styles.moodDot} />
-          <Text style={styles.dayNum}>12</Text>
-        </View>
+        {week.map(d => (
+          <View key={d.key} style={styles.dayCol}>
+            <Text style={styles.dayLabel}>{d.label}</Text>
+            <View style={d.isToday ? styles.moodDotFilled : styles.moodDot} />
+            <Text style={styles.dayNum}>{d.num}</Text>
+          </View>
+        ))}
       </View>
 
       <TouchableOpacity onPress={onPressStart} style={styles.cta}>

@@ -5,15 +5,12 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
 import { StyleSheet } from "react-native"
 import { setLogLevel } from "firebase/firestore"
-
 import SplashScreen from "./screens/SplashScreen"
 import SignUpScreen from "./screens/SignUpScreen"
 import SignInScreen from "./screens/SignInScreen"
 import HomeScreen from "./screens/HomeScreen"
 import JournalScreen from './screens/JournalScreen'
 import ProfileScreen from './screens/ProfileScreen'
-
-
 setLogLevel("error")
 
 const Stack = createNativeStackNavigator()
