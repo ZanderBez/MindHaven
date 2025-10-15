@@ -30,7 +30,7 @@ export default function SignUpScreen() {
     try {
       await registerUser(name.trim(), email.trim(), password);
       Alert.alert("Success", "Account created");
-      navigation.navigate("Chat");
+      navigation.navigate("Home");
     } catch (e: any) {
       setError(e?.message ?? "Failed to create account.");
     } finally {

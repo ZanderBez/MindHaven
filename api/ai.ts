@@ -8,7 +8,7 @@ const AI_TOKEN = process.env.EXPO_PUBLIC_AI_TOKEN ?? '';
 
 function trim(t?: string) {
   const out = (t ?? '').trim();
-  return out || "I’m here with you. Take your time; we can go slowly.";
+  return out || "I'm here with you. Take your time; we can go slowly.";
 }
 
 export async function aiChat(userText: string, history: ChatMsg[]) {

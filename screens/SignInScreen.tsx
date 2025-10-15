@@ -17,7 +17,7 @@ const onSubmit = async () => {
     try {
         const u = await loginUser(email.trim(), password);
         Alert.alert("Success", "Logged in");
-        navigation.reset({ index: 0, routes: [{ name: "Chat" }] });
+        navigation.reset({ index: 0, routes: [{ name: "Home" }] });
     } catch (e: any) {
         setError(e?.message ?? "Failed to sign in.");
     } finally {
