@@ -2,15 +2,14 @@ import React, { useState } from 'react'
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground, KeyboardAvoidingView, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation } from '@react-navigation/native'
-import BottomNav from '../components/BottomNav'
 
 export default function JournalScreen() {
   const navigation = useNavigation()
   const [note, setNote] = useState('')
 
-  const handleTab = (tab: 'home' | 'journal' | 'profile') => {
+  const handleTab = (tab: 'home' | 'chats' | 'profile') => {
     if (tab === 'home') navigation.navigate('Home' as never)
-    if (tab === 'journal') navigation.navigate('Journal' as never)
+    if (tab === 'chats') navigation.navigate('Chats' as never)
     if (tab === 'profile') navigation.navigate('Profile' as never)
   }
 
@@ -45,8 +44,6 @@ export default function JournalScreen() {
             </View>
           </KeyboardAvoidingView>
         </View>
-
-        <BottomNav active="journal" onChange={handleTab} />
       </SafeAreaView>
     </ImageBackground>
   )

@@ -1,16 +1,17 @@
-import React, { useCallback, useRef, useState, forwardRef, useImperativeHandle } from 'react'
+import React, { useCallback, useRef, useState, forwardRef, useImperativeHandle, useEffect } from 'react'
 import { View, TextInput, TouchableOpacity, FlatList, Text, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, TouchableOpacity as TapOverlay } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons'
 import { aiChat } from '../api/ai'
+import { auth } from '../firebase'
+import { subscribeMessages, sendMessage as sendFsMessage, markChatRead, Message as FsMsg } from '../services/chatService'
 
-export type ChatPanelRef = {
-  focusInput: () => void
-}
+export type ChatPanelRef = { focusInput: () => void }
 
 type Msg = { id: string; role: 'user' | 'assistant'; content: string }
 
 type Props = {
+  chatId?: string
   onRequestCollapse?: () => void
   isCollapsed?: boolean
   keyboardOffset?: number
@@ -23,6 +24,7 @@ const makeId = () => `${Date.now()}_${Math.floor(Math.random() * 1e6)}`
 
 const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
   {
+    chatId,
     onRequestCollapse,
     isCollapsed = true,
     keyboardOffset,
@@ -50,7 +52,29 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }))
   }, [])
 
-  const onSend = useCallback(async () => {
+  useEffect(() => {
+    if (!chatId) return
+    const off = subscribeMessages(chatId, (rows: FsMsg[]) => {
+      const uid = auth.currentUser?.uid
+      const mapped: Msg[] = rows.map(r => ({
+        id: r.id,
+        role: r.senderId === uid ? 'user' : 'assistant',
+        content: r.text
+      }))
+      setMessages(mapped.length ? mapped : [{ id: 'w1', role: 'assistant', content: 'Say hello to start the chat.' }])
+      scrollToEnd()
+    })
+    return off
+  }, [chatId, scrollToEnd])
+
+  useEffect(() => {
+    if (!chatId) return
+    const uid = auth.currentUser?.uid
+    if (!uid) return
+    markChatRead(chatId, uid)
+  }, [chatId, messages.length])
+
+  const onSendAi = useCallback(async () => {
     const text = input.trim()
     if (!text || sending) return
     const userMsg: Msg = { id: makeId(), role: 'user', content: text }
@@ -72,6 +96,27 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
       setSending(false)
     }
   }, [input, sending, messages, scrollToEnd])
+
+  const onSendFs = useCallback(async () => {
+    const text = input.trim()
+    const uid = auth.currentUser?.uid
+    if (!text || sending || !chatId || !uid) return
+    setSending(true)
+    setInput('')
+    scrollToEnd()
+    try {
+      await sendFsMessage(chatId, uid, text)
+      const history = messages.concat({ id: 'temp', role: 'user', content: text }).map(m => ({ role: m.role, content: m.content }))
+      const reply = await aiChat(text, history)
+      await sendFsMessage(chatId, 'therapist-bot', reply)
+    } catch {
+      await sendFsMessage(chatId, 'therapist-bot', 'Sorry, I am having trouble replying right now.')
+    } finally {
+      setSending(false)
+    }
+  }, [chatId, input, sending, messages, scrollToEnd])
+
+  const onSend = chatId ? onSendFs : onSendAi
 
   const renderItem = ({ item }: { item: Msg }) => {
     const isUser = item.role === 'user'

@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { LinearGradient } from 'expo-linear-gradient'
 
-type TabKey = 'home' | 'journal' | 'profile'
+type TabKey = 'home' | 'chats' | 'profile'
 
 type Props = {
   active: TabKey
@@ -25,9 +25,9 @@ export default function BottomNav({ active, onChange }: Props) {
           onPress={() => onChange('home')}
         />
         <NavItem
-          icon="book-open"
-          isActive={active === 'journal'}
-          onPress={() => onChange('journal')}
+          icon="message-circle"
+          isActive={active === 'chats'}
+          onPress={() => onChange('chats')}
         />
         <NavItem
           icon="user"

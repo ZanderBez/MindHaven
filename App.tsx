@@ -11,7 +11,10 @@ import SignInScreen from "./screens/SignInScreen"
 import HomeScreen from "./screens/HomeScreen"
 import JournalScreen from './screens/JournalScreen'
 import ProfileScreen from './screens/ProfileScreen'
-setLogLevel("error")
+import ChatsScreen from "./screens/ChatsScreen"
+import ChatRoomScreen from "./screens/ChatRoomScreen"
+
+
 
 const Stack = createNativeStackNavigator()
 
@@ -28,6 +31,8 @@ export default function App() {
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Journal" component={JournalScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="Chats" component={ChatsScreen} />
+          <Stack.Screen name="ChatRoom" component={ChatRoomScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>
