@@ -13,7 +13,10 @@
       "backgroundColor": "#000000"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "We use your photo library to let you pick a profile picture."
+      }
     },
     "android": {
       "adaptiveIcon": {

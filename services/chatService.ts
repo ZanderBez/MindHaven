@@ -1,8 +1,5 @@
 import { db } from "../firebase";
-import {
-  addDoc, collection, doc, getDoc, onSnapshot, orderBy, query,
-  serverTimestamp, updateDoc, where, Timestamp
-} from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, onSnapshot, orderBy, query, serverTimestamp, updateDoc, where, Timestamp, writeBatch, deleteDoc} from "firebase/firestore";
 
 export type Chat = {
   id: string;
@@ -24,18 +21,12 @@ export type Message = {
 };
 
 export function subscribeUserChats(uid: string, cb: (rows: Chat[]) => void) {
-  const q = query(
-    collection(db, "chats"),
-    where("participants", "array-contains", uid),
-  );
+  const q = query(collection(db, "chats"), where("participants", "array-contains", uid));
   return onSnapshot(q, snap => cb(snap.docs.map(d => ({ id: d.id, ...(d.data() as any) }))));
 }
 
 export function subscribeMessages(chatId: string, cb: (rows: Message[]) => void) {
-  const q = query(
-    collection(db, "chats", chatId, "messages"),
-    orderBy("createdAt", "asc")
-  );
+  const q = query(collection(db, "chats", chatId, "messages"), orderBy("createdAt", "asc"));
   return onSnapshot(q, snap => cb(snap.docs.map(d => ({ id: d.id, ...(d.data() as any) }))));
 }
 
@@ -69,18 +60,29 @@ export async function createNewChatWithBot(uid: string) {
       [uid]: { unread: 0, pinned: false, lastReadAt: null },
       ["therapist-bot"]: { unread: 0, pinned: false, lastReadAt: null }
     },
-    lastMessage: "Hi, how are you feeling today?",
+    lastMessage: "What do you want to talk about today",
     lastMessageAt: serverTimestamp(),
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
   });
 
-  await addDoc(collection(db, "chats", chatRef.id, "messages"), {
-    text: "Hi, how are you feeling today?",
+  const id = chatRef.id;
+
+  addDoc(collection(db, "chats", id, "messages"), {
+    text: "What do you want to talk about today",
     senderId: "therapist-bot",
     createdAt: serverTimestamp(),
     type: "text"
-  });
+  }).catch(() => {});
 
-  return chatRef.id;
+  return id;
+}
+
+export async function deleteChat(chatId: string) {
+  const msgsRef = collection(db, "chats", chatId, "messages");
+  const msgs = await getDocs(msgsRef);
+  const batch = writeBatch(db);
+  msgs.forEach(m => batch.delete(m.ref));
+  await batch.commit();
+  await deleteDoc(doc(db, "chats", chatId));
 }

@@ -27,7 +27,7 @@ const SplashScreen: React.FC = () => {
         <VideoView
           player={player}
           style={styles.video}
-          contentFit="contain"
+          contentFit="cover"
           nativeControls={false}
           fullscreenOptions={{ enable: false }}
         />

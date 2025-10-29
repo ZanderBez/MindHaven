@@ -9,12 +9,13 @@ import SplashScreen from "./screens/SplashScreen"
 import SignUpScreen from "./screens/SignUpScreen"
 import SignInScreen from "./screens/SignInScreen"
 import HomeScreen from "./screens/HomeScreen"
-import JournalScreen from './screens/JournalScreen'
+import JournalListScreen from './screens/JournalListScreen'
 import ProfileScreen from './screens/ProfileScreen'
 import ChatsScreen from "./screens/ChatsScreen"
 import ChatRoomScreen from "./screens/ChatRoomScreen"
-
-
+import EditProfileScreen from "./screens/EditProfileScreen"
+import ChangePasswordScreen from "./screens/ChangePasswordScreen"
+import JournalEditScreen from "./screens/JournalEditScreen"
 
 const Stack = createNativeStackNavigator()
 
@@ -29,10 +30,13 @@ export default function App() {
           <Stack.Screen name="SignUp" component={SignUpScreen} />
           <Stack.Screen name="SignIn" component={SignInScreen} />
           <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="Journal" component={JournalScreen} />
+          <Stack.Screen name="Journal" component={JournalListScreen} />
+          <Stack.Screen name="JournalEdit" component={JournalEditScreen} />
           <Stack.Screen name="Profile" component={ProfileScreen} />
           <Stack.Screen name="Chats" component={ChatsScreen} />
           <Stack.Screen name="ChatRoom" component={ChatRoomScreen} />
+          <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+          <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>
