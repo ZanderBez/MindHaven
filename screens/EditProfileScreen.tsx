@@ -102,6 +102,7 @@ export default function EditProfileScreen() {
       style={styles.bg}
       imageStyle={styles.bgImage}
     >
+      <View style={styles.overlay} />
       <SafeAreaView style={styles.safe}>
         <View style={styles.headerRow}>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconBtn} hitSlop={styles.hitSlop as any}>
@@ -160,6 +161,10 @@ const styles = StyleSheet.create({
   },
   bgImage: {
     opacity: 1,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.35)",
   },
   safe: {
     flex: 1,
@@ -283,4 +288,3 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
   },
 });
-

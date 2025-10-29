@@ -81,6 +81,7 @@ export default function ProfileScreen() {
       style={styles.bg}
       imageStyle={styles.bgImage}
     >
+      <View style={styles.overlay} />
       <SafeAreaView style={styles.safe}>
         <View style={styles.headerRow}>
           <TouchableOpacity
@@ -156,6 +157,7 @@ function GlassRow({ label, onPress }: { label: string; onPress: () => void }) {
 const styles = StyleSheet.create({
   bg: { flex: 1 },
   bgImage: { opacity: 1 },
+  overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.35)" },
   safe: { flex: 1 },
   headerRow: {
     flexDirection: "row",
