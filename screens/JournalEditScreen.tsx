@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, Alert, TouchableWithoutFeedback, Keyboard, ToastAndroid } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native'
 import { Feather } from '@expo/vector-icons'
@@ -7,6 +7,8 @@ import { onAuthStateChanged } from 'firebase/auth'
 import { auth, db } from '../firebase'
 import { deleteJournal, updateJournal, createJournal } from '../services/journalService'
 import { doc, getDoc } from 'firebase/firestore'
+import * as Haptics from 'expo-haptics'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const EMOJI = ['😀','🙂','😐','😕','😢','😡','😴','😰','😌','🥳']
 
@@ -43,21 +45,48 @@ export default function JournalEditScreen() {
     })()
   }, [uid, id])
 
+  useEffect(() => {
+    (async () => {
+      if (!isNew) return
+      try {
+        const last = await AsyncStorage.getItem('last_mood')
+        if (last) setMood(last)
+      } catch {}
+    })()
+  }, [isNew])
+
   const canSave = useMemo(
     () => (title.trim().length > 0 || body.trim().length > 0) && !!uid && !saving,
     [title, body, uid, saving]
   )
 
+  function notify(msg: string) {
+    if (Platform.OS === 'android') ToastAndroid.show(msg, ToastAndroid.SHORT)
+    else Alert.alert(msg)
+  }
+
+  async function saveLastMood(m: string) {
+    try { await AsyncStorage.setItem('last_mood', m) } catch {}
+  }
+
   async function onSave() {
     if (!uid || !canSave) return
     try {
       setSaving(true)
+      let newId: string | undefined = id ?? undefined
       if (isNew) {
-        await createJournal(uid, { title: title.trim(), body: body.trim(), mood })
+        const createdId = await createJournal(uid, { title: title.trim(), body: body.trim(), mood })
+        if (typeof createdId === 'string') newId = createdId
       } else {
         await updateJournal(uid, id!, { title: title.trim(), body: body.trim(), mood })
       }
-      navigation.navigate('Journal')
+      await saveLastMood(mood)
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+      notify('Saved to Journal')
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Journal' as never, params: { focusId: newId ?? undefined } as never }]
+      })
     } finally {
       setSaving(false)
     }
@@ -67,7 +96,16 @@ export default function JournalEditScreen() {
     if (!uid || !id) return
     Alert.alert('Delete note?', 'This cannot be undone.', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: async () => { await deleteJournal(uid, id); navigation.navigate('Journal') } }
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          await deleteJournal(uid, id)
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success)
+          notify('Deleted')
+          navigation.reset({ index: 0, routes: [{ name: 'Journal' as never }] })
+        }
+      }
     ])
   }
 
@@ -87,7 +125,7 @@ export default function JournalEditScreen() {
         <TouchableWithoutFeedback onPress={dismissIfTyping}>
           <View style={{ flex: 1 }}>
             <View style={styles.headerRow}>
-              <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
+              <TouchableOpacity onPress={() => navigation.reset({ index: 0, routes: [{ name: 'Journal' as never }] })} style={styles.backBtn}>
                 <Feather name="chevron-left" size={26} color="#FFFFFF" />
               </TouchableOpacity>
               <Text style={styles.headerTitle}>All Notes</Text>
@@ -169,7 +207,6 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(8,12,20,0.28)'
   },
-
   safe: {
     flex: 1
   },
@@ -196,7 +233,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36
   },
-
   body: {
     flex: 1,
     paddingHorizontal: 16,
@@ -229,7 +265,6 @@ const styles = StyleSheet.create({
   moodText: {
     fontSize: 20
   },
-
   titleInput: {
     height: 48,
     borderRadius: 14,
@@ -249,7 +284,6 @@ const styles = StyleSheet.create({
   inputFocused: {
     backgroundColor: 'rgba(255,255,255,0.22)'
   },
-
   actionsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -282,7 +316,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '900'
   },
-
   deleteBtn: {
     marginTop: 12,
     height: 48,

@@ -61,8 +61,9 @@ export default function ProfileScreen() {
     }
   }, [route.params?.refresh]);
 
-  const handleTab = (tab: "home" | "chats" | "profile") => {
+  const handleTab = (tab: "home" | "journal" | "chats" | "profile") => {
     if (tab === "home") navigation.navigate("Home" as never);
+    if (tab === "journal") navigation.navigate("Journal" as never);
     if (tab === "chats") navigation.navigate("Chats" as never);
     if (tab === "profile") navigation.navigate("Profile" as never);
   };

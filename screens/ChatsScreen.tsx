@@ -92,8 +92,9 @@ export default function ChatsScreen() {
     );
   }
 
-  const handleTab = (tab: "home" | "chats" | "profile") => {
+  const handleTab = (tab: "home"| 'journal' | "chats" | "profile") => {
     if (tab === "home") nav.navigate("Home");
+    if (tab === 'journal') nav.navigate('Journal');
     if (tab === "chats") nav.navigate("Chats");
     if (tab === "profile") nav.navigate("Profile");
   };

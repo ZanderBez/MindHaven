@@ -83,8 +83,9 @@ export default function HomeScreen() {
     navigation.navigate('ChatRoom', { chatId: c.id, title: c.title ?? 'Chat' })
   }
 
-  const handleTab = (tab: 'home' | 'chats' | 'profile') => {
+  const handleTab = (tab: 'home' | 'journal' | 'chats' | 'profile') => {
     if (tab === 'home') navigation.navigate('Home')
+    if (tab === 'journal') navigation.navigate('Journal');
     if (tab === 'chats') navigation.navigate('Chats')
     if (tab === 'profile') navigation.navigate('Profile')
   }
@@ -168,7 +169,7 @@ export default function HomeScreen() {
           )}
 
           <View style={styles.sectionTitleRow}>
-            <Text style={styles.sectionTitle}>Notebook</Text>
+            <Text style={styles.sectionTitle}>Journal</Text>
           </View>
 
           <FlatList
@@ -183,7 +184,7 @@ export default function HomeScreen() {
             ListEmptyComponent={
               <TouchableOpacity activeOpacity={0.9} onPress={() => navigation.navigate('JournalEdit', { id: null })} style={[styles.card, styles.cardEmpty, { width: CARD_W }]}>
                 <Feather name="plus" size={18} color="#FFFFFF" />
-                <Text style={styles.cardText}>Create your first note</Text>
+                <Text style={styles.cardText}>Create your first Journal</Text>
               </TouchableOpacity>
             }
             renderItem={({ item, index }) => (
@@ -200,13 +201,6 @@ export default function HomeScreen() {
               </TouchableOpacity>
             )}
           />
-
-          <TouchableOpacity activeOpacity={0.9} onPress={() => navigation.navigate('JournalEdit', { id: null })}>
-            <LinearGradient colors={['rgba(255,255,255,0.18)', 'rgba(255,255,255,0.10)']} start={{ x: 0, y: 0.5 }} end={{ x: 1, y: 0.5 }} style={styles.actionRow}>
-              <Text style={styles.actionText}>Create New Journal</Text>
-              <Feather name="chevron-right" size={18} color="#FFFFFF" />
-            </LinearGradient>
-          </TouchableOpacity>
         </ScrollView>
 
         <BottomNav active="home" onChange={handleTab} />
@@ -444,20 +438,4 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     opacity: 0.95
   },
-  actionRow: {
-    height: 48,
-    borderRadius: 16,
-    paddingHorizontal: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
-    marginTop: 4
-  },
-  actionText: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '800'
-  }
 })

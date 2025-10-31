@@ -1,65 +1,56 @@
-import React from 'react'
-import { View, TouchableOpacity, StyleSheet } from 'react-native'
-import { Feather } from '@expo/vector-icons'
-import { LinearGradient } from 'expo-linear-gradient'
+import React from 'react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 
-type TabKey = 'home' | 'chats' | 'profile'
+export type TabKey = 'home' | 'journal' | 'chats' | 'profile';
 
 type Props = {
-  active: TabKey
-  onChange: (next: TabKey) => void
-}
+  active: TabKey;
+  onChange: (next: TabKey) => void;
+};
 
 export default function BottomNav({ active, onChange }: Props) {
   return (
     <View style={styles.wrap}>
-      <LinearGradient
-        colors={['rgba(255,255,255,0.06)', 'rgba(255,255,255,0.02)']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.bar}
-      >
-        <NavItem
-          icon="home"
-          isActive={active === 'home'}
-          onPress={() => onChange('home')}
-        />
-        <NavItem
-          icon="message-circle"
-          isActive={active === 'chats'}
-          onPress={() => onChange('chats')}
-        />
-        <NavItem
-          icon="user"
-          isActive={active === 'profile'}
-          onPress={() => onChange('profile')}
-        />
-      </LinearGradient>
+      <NavBtn
+        icon="home"
+        active={active === 'home'}
+        onPress={() => onChange('home')}
+      />
+      <NavBtn
+        icon="book-open"
+        active={active === 'journal'}
+        onPress={() => onChange('journal')}
+      />
+      <NavBtn
+        icon="message-circle"
+        active={active === 'chats'}
+        onPress={() => onChange('chats')}
+      />
+      <NavBtn
+        icon="user"
+        active={active === 'profile'}
+        onPress={() => onChange('profile')}
+      />
     </View>
-  )
+  );
 }
 
-function NavItem({
+function NavBtn({
   icon,
-  isActive,
-  onPress
+  active,
+  onPress,
 }: {
-  icon: React.ComponentProps<typeof Feather>['name']
-  isActive: boolean
-  onPress: () => void
+  icon: React.ComponentProps<typeof Feather>['name'];
+  active: boolean;
+  onPress: () => void;
 }) {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.item}>
-      <View style={styles.iconWrap}>
-        {isActive && <View style={styles.activeBg} />}
-        <Feather
-          name={icon}
-          size={22}
-          color={isActive ? '#FFFFFF' : 'rgba(200,220,255,0.9)'}
-        />
-      </View>
+    <TouchableOpacity style={styles.btn} onPress={onPress} activeOpacity={0.8}>
+      {active ? <View style={styles.activeBg} /> : null}
+      <Feather name={icon} size={22} color="#FFFFFF" style={{ opacity: active ? 1 : 0.75 }} />
     </TouchableOpacity>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
@@ -67,37 +58,27 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 16,
     right: 16,
-    bottom: 16
-  },
-  bar: {
+    bottom: 16,
+    borderRadius: 16,
+    backgroundColor: 'rgba(180, 180, 180, 0.2)',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    paddingHorizontal: 16,
     paddingVertical: 10,
-    borderRadius: 28,
-    borderWidth: 1,
-    borderColor: 'rgba(200,220,255,0.25)',
-    backgroundColor: 'rgba(0,0,0,0.18)',
-    marginBottom: 10
+    paddingHorizontal: 8,
   },
-  item: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  iconWrap: {
+  btn: {
     width: 44,
     height: 44,
     borderRadius: 22,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
   activeBg: {
     position: 'absolute',
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: 'rgba(120,160,255,0.45)'
-  }
-})
+    backgroundColor: 'rgba(120,160,255,0.45)',
+  },
+});
