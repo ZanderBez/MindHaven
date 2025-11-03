@@ -23,7 +23,6 @@ export default function SignUpScreen() {
     setLoading(true)
     try {
       await registerUser(name.trim(), email.trim(), password)
-      Alert.alert("Success", "Account created")
       navigation.navigate("Home")
     } catch (e: any) {
       setError(e?.message ?? "Failed to create account.")

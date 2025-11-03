@@ -18,7 +18,6 @@ export default function SignInScreen() {
     setLoading(true)
     try {
       await loginUser(email.trim(), password)
-      Alert.alert("Success", "Logged in")
       navigation.reset({ index: 0, routes: [{ name: "Home" }] })
     } catch (e: any) {
       setError(e?.message ?? "Failed to sign in.")

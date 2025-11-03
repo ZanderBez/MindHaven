@@ -6,10 +6,20 @@ import { aiChat } from "../api/ai";
 import { auth } from "../firebase";
 import { subscribeMessages, sendMessage as sendFsMessage, markChatRead, Message as FsMsg } from "../services/chatService";
 import MessageBubble from "./MessageBubble";
+import { isExplicitSaveTrigger } from "../services/journalFlow";
+
 
 export type ChatPanelRef = { focusInput: () => void };
 
-type Msg = { id: string; role: "user" | "assistant"; content: string };
+type UIMsg = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  type?: string;
+  buttons?: string[];
+  options?: { value: number; emoji: string }[];
+  senderId?: string;
+};
 
 type Props = {
   chatId?: string;
@@ -20,6 +30,10 @@ type Props = {
   assistantLabel?: string;
   userLabel?: string;
   botAvatar?: any;
+  onAfterUserMessage?: (text: string) => Promise<void> | void;
+  onSaveOffer?: (choice: "Save" | "Not now") => Promise<void> | void;
+  onTitleProvided?: (t: string) => Promise<void> | void;
+  onMoodSelected?: (mood: number) => Promise<void> | void;
 };
 
 const makeId = () => `${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
@@ -33,15 +47,19 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     title = "Therapy Buddy",
     assistantLabel = "Therapy Buddy",
     userLabel = "You",
-    botAvatar
+    botAvatar,
+    onAfterUserMessage = async () => {},
+    onSaveOffer = async () => {},
+    onTitleProvided = async () => {},
+    onMoodSelected = async () => {}
   },
   ref
 ) {
   const insets = useSafeAreaInsets();
-  const [messages, setMessages] = useState<Msg[]>([{ id: "w1", role: "assistant", content: "What do you want to talk about today?" }]);
+  const [messages, setMessages] = useState<UIMsg[]>([{ id: "w1", role: "assistant", content: "What do you want to talk about today?" }]);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
-  const listRef = useRef<FlatList<Msg>>(null);
+  const listRef = useRef<FlatList<UIMsg>>(null);
   const inputRef = useRef<TextInput>(null);
   const userAvatarUri = auth.currentUser?.photoURL || null;
 
@@ -60,10 +78,14 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     if (!chatId) return;
     const off = subscribeMessages(chatId, (rows: FsMsg[]) => {
       const uid = auth.currentUser?.uid;
-      const mapped: Msg[] = rows.map(r => ({
+      const mapped: UIMsg[] = rows.map((r: any) => ({
         id: r.id,
         role: r.senderId === uid ? "user" : "assistant",
-        content: r.text
+        content: String(r.text ?? ""),
+        type: r.type,
+        buttons: r.buttons,
+        options: r.options,
+        senderId: r.senderId
       }));
       setMessages(mapped.length ? mapped : [{ id: "w1", role: "assistant", content: "Say hello to start the chat." }]);
       scrollToEnd();
@@ -81,7 +103,7 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
   const onSendAi = useCallback(async () => {
     const text = input.trim();
     if (!text || sending) return;
-    const userMsg: Msg = { id: makeId(), role: "user", content: text };
+    const userMsg: UIMsg = { id: makeId(), role: "user", content: text };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
     setSending(true);
@@ -89,11 +111,11 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     try {
       const history = messages.concat(userMsg).map(m => ({ role: m.role, content: m.content }));
       const reply = await aiChat(text, history);
-      const assistantMsg: Msg = { id: makeId(), role: "assistant", content: reply };
+      const assistantMsg: UIMsg = { id: makeId(), role: "assistant", content: reply };
       setMessages(prev => [...prev, assistantMsg]);
       scrollToEnd();
     } catch {
-      const assistantMsg: Msg = { id: makeId(), role: "assistant", content: "Sorry, I am having trouble replying right now." };
+      const assistantMsg: UIMsg = { id: makeId(), role: "assistant", content: "Sorry, I am having trouble replying right now." };
       setMessages(prev => [...prev, assistantMsg]);
       scrollToEnd();
     } finally {
@@ -101,7 +123,7 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     }
   }, [input, sending, messages, scrollToEnd]);
 
-  const onSendFs = useCallback(async () => {
+const onSendFs = useCallback(async () => {
     const text = input.trim();
     const uid = auth.currentUser?.uid;
     if (!text || sending || !chatId || !uid) return;
@@ -110,19 +132,91 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     scrollToEnd();
     try {
       await sendFsMessage(chatId, uid, text);
-      const history = messages.concat({ id: "temp", role: "user", content: text }).map(m => ({ role: m.role, content: m.content }));
+      await onAfterUserMessage(text);
+
+      if (isExplicitSaveTrigger(text)) {
+        setSending(false);
+        return;
+      }
+
+      const history = messages
+        .concat({ id: "temp", role: "user", content: text })
+        .map(m => ({ role: m.role, content: m.content }));
+
       const reply = await aiChat(text, history);
-      await sendFsMessage(chatId, "therapist-bot", reply);
-    } catch {
-      await sendFsMessage(chatId, "therapist-bot", "Sorry, I am having trouble replying right now.");
-    } finally {
-      setSending(false);
-    }
-  }, [chatId, input, sending, messages, scrollToEnd]);
+        await sendFsMessage(chatId, "therapist-bot", reply);
+        } catch {
+          await sendFsMessage(chatId, "therapist-bot", "Sorry, I am having trouble replying right now.");
+        } finally {
+          setSending(false);
+        }
+  }, [chatId, input, sending, messages, scrollToEnd, onAfterUserMessage]);
 
   const onSend = chatId ? onSendFs : onSendAi;
 
-  const renderItem = ({ item }: { item: Msg }) => {
+  const renderSaveOffer = (m: UIMsg) => {
+    return (
+      <View style={styles.offerWrap}>
+        <MessageBubble role="assistant" content={m.content} />
+        <View style={styles.actionRow}>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => onSaveOffer("Save")}>
+            <Text style={styles.actionTxt}>Save</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionBtn} onPress={() => onSaveOffer("Not now")}>
+            <Text style={styles.actionTxt}>Not now</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  const [titleDraft, setTitleDraft] = useState("");
+  const renderTitlePrompt = (m: UIMsg) => {
+    return (
+      <View style={styles.offerWrap}>
+        <MessageBubble role="assistant" content={m.content} />
+        <View style={styles.titleRowBox}>
+          <TextInput
+            style={styles.inlineInput}
+            value={titleDraft}
+            onChangeText={setTitleDraft}
+            placeholder="Title…"
+            placeholderTextColor="rgba(255,255,255,0.7)"
+          />
+          <TouchableOpacity style={styles.smallBtn} onPress={() => { if (titleDraft.trim()) { onTitleProvided(titleDraft.trim()); setTitleDraft(""); } }}>
+            <Text style={styles.smallBtnTxt}>OK</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  };
+
+  const renderMoodPrompt = (m: UIMsg) => {
+    const opts = m.options && m.options.length ? m.options : [
+      { value: 1, emoji: "😞" },
+      { value: 2, emoji: "😕" },
+      { value: 3, emoji: "😐" },
+      { value: 4, emoji: "🙂" },
+      { value: 5, emoji: "😄" }
+    ];
+    return (
+      <View style={styles.offerWrap}>
+        <MessageBubble role="assistant" content={m.content} />
+        <View style={styles.moodRow}>
+          {opts.map(o => (
+            <TouchableOpacity key={o.value} style={styles.moodChip} onPress={() => onMoodSelected(o.value)}>
+              <Text style={styles.moodTxt}>{o.emoji}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+    );
+  };
+
+  const renderItem = ({ item }: { item: UIMsg }) => {
+    if (item.type === "save_offer") return renderSaveOffer(item);
+    if (item.type === "title_prompt") return renderTitlePrompt(item);
+    if (item.type === "mood_prompt") return renderMoodPrompt(item);
     const isUser = item.role === "user";
     return (
       <MessageBubble
@@ -246,5 +340,67 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(255,255,255,0.25)"
+  },
+  offerWrap: {
+    gap: 8
+  },
+  actionRow: {
+    flexDirection: "row",
+    gap: 8,
+    paddingHorizontal: 8
+  },
+  actionBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 10,
+    backgroundColor: "rgba(255,255,255,0.18)"
+  },
+  actionTxt: {
+    color: "#FFF",
+    fontWeight: "700"
+  },
+  titleRowBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 8
+  },
+  inlineInput: {
+    flex: 1,
+    height: 40,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    backgroundColor: "rgba(255,255,255,0.10)",
+    color: "#FFF",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)"
+  },
+  smallBtn: {
+    height: 40,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.25)"
+  },
+  smallBtnTxt: {
+    color: "#FFF",
+    fontWeight: "700"
+  },
+  moodRow: {
+    flexDirection: "row",
+    gap: 10,
+    paddingHorizontal: 8
+  },
+  moodChip: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.18)"
+  },
+  moodTxt: {
+    fontSize: 22
   }
 });

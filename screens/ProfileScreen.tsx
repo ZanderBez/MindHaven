@@ -85,15 +85,7 @@ export default function ProfileScreen() {
       <View style={styles.overlay} />
       <SafeAreaView style={styles.safe}>
         <View style={styles.headerRow}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backBtn}
-            hitSlop={{ top: 10, left: 10, right: 10, bottom: 10 }}
-          >
-            <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
-          </TouchableOpacity>
           <Text style={styles.title}>Profile</Text>
-          <View style={{ width: 28 }} />
         </View>
 
         <View style={styles.content}>

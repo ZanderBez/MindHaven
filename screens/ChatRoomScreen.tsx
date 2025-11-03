@@ -3,11 +3,28 @@ import { ImageBackground, StyleSheet, View, Text, TouchableOpacity } from "react
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import ChatPanel from "../components/ChatPanel";
+import { maybeOfferAfterUserMessage, respondToSaveOffer, onTitleProvided, onMoodSelected } from "../services/journalFlow";
 
 export default function ChatRoomScreen() {
   const route = useRoute<RouteProp<Record<string, { chatId: string; title?: string }>, string>>();
   const navigation = useNavigation<any>();
   const { chatId, title } = route.params;
+
+  const handleAfterUserMessage = async (text: string) => {
+    await maybeOfferAfterUserMessage(chatId, text);
+  };
+
+  const handleSaveOffer = async (choice: "Save" | "Not now") => {
+    await respondToSaveOffer(chatId, choice);
+  };
+
+  const handleTitleProvided = async (t: string) => {
+    await onTitleProvided(chatId, t);
+  };
+
+  const handleMoodSelected = async (mood: number) => {
+    await onMoodSelected(chatId, mood);
+  };
 
   return (
     <ImageBackground
@@ -36,6 +53,10 @@ export default function ChatRoomScreen() {
               title={title ?? "Therapy Buddy"}
               assistantLabel="Therapy Buddy"
               userLabel="You"
+              onAfterUserMessage={handleAfterUserMessage}
+              onSaveOffer={handleSaveOffer}
+              onTitleProvided={handleTitleProvided}
+              onMoodSelected={handleMoodSelected}
             />
           </View>
         </View>
