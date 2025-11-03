@@ -14,6 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
+      "backgroundColor": "#1C1C1C",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "We use your photo library to let you pick a profile picture."
       }
@@ -21,7 +22,7 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#1C1C1C"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
@@ -30,7 +31,9 @@
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
-      "expo-video"
+      "expo-video",
+      "expo-asset",
+      "expo-font"
     ]
   }
 }

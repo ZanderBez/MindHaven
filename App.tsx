@@ -1,16 +1,16 @@
 import "react-native-gesture-handler"
 import React from "react"
-import { NavigationContainer } from "@react-navigation/native"
+import { View, StyleSheet } from "react-native"
+import { NavigationContainer, DefaultTheme } from "@react-navigation/native"
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
 import { GestureHandlerRootView } from "react-native-gesture-handler"
-import { StyleSheet } from "react-native"
-import { setLogLevel } from "firebase/firestore"
+import GlobalBackground from "./components/GlobalBackground"
 import SplashScreen from "./screens/SplashScreen"
 import SignUpScreen from "./screens/SignUpScreen"
 import SignInScreen from "./screens/SignInScreen"
 import HomeScreen from "./screens/HomeScreen"
-import JournalListScreen from './screens/JournalListScreen'
-import ProfileScreen from './screens/ProfileScreen'
+import JournalListScreen from "./screens/JournalListScreen"
+import ProfileScreen from "./screens/ProfileScreen"
 import ChatsScreen from "./screens/ChatsScreen"
 import ChatRoomScreen from "./screens/ChatRoomScreen"
 import EditProfileScreen from "./screens/EditProfileScreen"
@@ -19,32 +19,50 @@ import JournalEditScreen from "./screens/JournalEditScreen"
 
 const Stack = createNativeStackNavigator()
 
+const TransparentTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: "transparent",
+    card: "transparent",
+    primary: DefaultTheme.colors.primary,
+    text: DefaultTheme.colors.text,
+    border: "transparent",
+    notification: DefaultTheme.colors.notification
+  }
+}
+
 export default function App() {
   return (
     <GestureHandlerRootView style={styles.root}>
-      <NavigationContainer>
-        <Stack.Navigator
-          initialRouteName="Splash"
-          screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="Splash" component={SplashScreen} />
-          <Stack.Screen name="SignUp" component={SignUpScreen} />
-          <Stack.Screen name="SignIn" component={SignInScreen} />
-          <Stack.Screen name="Home" component={HomeScreen} />
-          <Stack.Screen name="Journal" component={JournalListScreen} />
-          <Stack.Screen name="JournalEdit" component={JournalEditScreen} />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
-          <Stack.Screen name="Chats" component={ChatsScreen} />
-          <Stack.Screen name="ChatRoom" component={ChatRoomScreen} />
-          <Stack.Screen name="EditProfile" component={EditProfileScreen} />
-          <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
+      <View style={styles.root}>
+        <GlobalBackground />
+        <NavigationContainer theme={TransparentTheme}>
+          <Stack.Navigator
+            initialRouteName="Splash"
+            screenOptions={{
+              headerShown: false,
+              contentStyle: { backgroundColor: "transparent" },
+              animation: "fade",   
+            }}>
+            <Stack.Screen name="Splash" component={SplashScreen} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
+            <Stack.Screen name="SignIn" component={SignInScreen} />
+            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen name="Journal" component={JournalListScreen} />
+            <Stack.Screen name="JournalEdit" component={JournalEditScreen} />
+            <Stack.Screen name="Profile" component={ProfileScreen} />
+            <Stack.Screen name="Chats" component={ChatsScreen} />
+            <Stack.Screen name="ChatRoom" component={ChatRoomScreen} />
+            <Stack.Screen name="EditProfile" component={EditProfileScreen} />
+            <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      </View>
     </GestureHandlerRootView>
   )
 }
 
 const styles = StyleSheet.create({
-  root: {
-    flex: 1
-  }
+  root: { flex: 1 }
 })

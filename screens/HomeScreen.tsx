@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { ImageBackground, StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ActivityIndicator, FlatList, Dimensions, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, TouchableOpacity, TextInput, Image, ActivityIndicator, FlatList, Dimensions, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Feather } from '@expo/vector-icons'
-import { LinearGradient } from 'expo-linear-gradient'
 import { useNavigation } from '@react-navigation/native'
 import { onAuthStateChanged } from 'firebase/auth'
 import { auth } from '../firebase'
@@ -85,13 +84,13 @@ export default function HomeScreen() {
 
   const handleTab = (tab: 'home' | 'journal' | 'chats' | 'profile') => {
     if (tab === 'home') navigation.navigate('Home')
-    if (tab === 'journal') navigation.navigate('Journal');
+    if (tab === 'journal') navigation.navigate('Journal')
     if (tab === 'chats') navigation.navigate('Chats')
     if (tab === 'profile') navigation.navigate('Profile')
   }
 
   return (
-    <ImageBackground source={require('../assets/Background.png')} resizeMode="cover" style={styles.bg} imageStyle={styles.bgImage}>
+    <View style={{ flex: 1 }}>
       <View pointerEvents="none" style={styles.overlay} />
       <SafeAreaView style={styles.safe}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
@@ -115,7 +114,7 @@ export default function HomeScreen() {
             <MotivationQuote style={styles.motivationQuote} authorStyle={styles.motivationAuthor} numberOfLines={3} />
           </View>
 
-                    <View style={styles.sectionTitleRow}>
+          <View style={styles.sectionTitleRow}>
             <Text style={styles.sectionTitle}>Have a Session</Text>
           </View>
 
@@ -142,7 +141,6 @@ export default function HomeScreen() {
               <Text style={styles.seeAll}>See all</Text>
             </TouchableOpacity>
           </View>
-          
 
           {recentChats.length > 0 ? (
             <View style={styles.recentList}>
@@ -205,17 +203,11 @@ export default function HomeScreen() {
 
         <BottomNav active="home" onChange={handleTab} />
       </SafeAreaView>
-    </ImageBackground>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
-  bg: {
-    flex: 1
-  },
-  bgImage: {
-    opacity: 1
-  },
   overlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: 'rgba(8,12,20,0.35)'
@@ -281,7 +273,7 @@ const styles = StyleSheet.create({
     color: '#ffffffff',
     fontSize: 14,
     fontWeight: '900',
-    letterSpacing: 0.3,
+    letterSpacing: 0.3
   },
   motivationQuote: {
     color: '#FFFFFF',
@@ -437,5 +429,5 @@ const styles = StyleSheet.create({
   notePreview: {
     color: '#FFFFFF',
     opacity: 0.95
-  },
+  }
 })

@@ -14,19 +14,11 @@ export default function JournalListScreen() {
   const navigation = useNavigation<any>();
   const route = useRoute<JournalRoute>();
   const [uid, setUid] = useState<string | null>(null);
-  const [photoURL, setPhotoURL] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [rows, setRows] = useState<Journal[]>([]);
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const listRef = useRef<FlatList<Journal>>(null);
 
-  useEffect(() => {
-    const off = onAuthStateChanged(auth, u => {
-      setUid(u?.uid ?? null);
-      setPhotoURL(u?.photoURL ?? null);
-    });
-    return off;
-  }, []);
 
   useEffect(() => {
     if (!uid) return;
@@ -116,16 +108,6 @@ export default function JournalListScreen() {
     <ImageBackground source={require("../assets/Background.png")} resizeMode="cover" style={styles.bg} imageStyle={styles.bgImage}>
       <View pointerEvents="none" style={styles.overlay} />
       <SafeAreaView style={styles.safe}>
-        <View style={styles.topRow}>
-          {photoURL ? (
-            <Image source={{ uri: photoURL }} style={styles.avatar} />
-          ) : (
-            <View style={styles.avatarFallback}>
-              <Feather name="user" size={16} color="#0B0B12" />
-            </View>
-          )}
-        </View>
-
         <Text style={styles.heading}>Your Notes</Text>
 
         <View style={styles.searchRow}>
