@@ -1,13 +1,13 @@
 import React, { useCallback, useRef, useState, forwardRef, useImperativeHandle, useEffect } from "react";
-import { View, TextInput, TouchableOpacity, FlatList, Text, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, TouchableOpacity as TapOverlay, Image } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
+import { View, TextInput, TouchableOpacity, FlatList, Text, StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, Animated, Easing } from "react-native";
+import { useSafeAreaInsets, SafeAreaView } from "react-native-safe-area-context";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { aiChat } from "../api/ai";
 import { auth } from "../firebase";
 import { subscribeMessages, sendMessage as sendFsMessage, markChatRead, Message as FsMsg } from "../services/chatService";
-import MessageBubble from "./MessageBubble";
 import { isExplicitSaveTrigger } from "../services/journalFlow";
-
+import { recordWavStart, RecHandle as RecH } from "../services/recorder";
+import { transcribeAudio } from "../services/googleStt";
 
 export type ChatPanelRef = { focusInput: () => void };
 
@@ -61,7 +61,24 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
   const [sending, setSending] = useState(false);
   const listRef = useRef<FlatList<UIMsg>>(null);
   const inputRef = useRef<TextInput>(null);
-  const userAvatarUri = auth.currentUser?.photoURL || null;
+  const [recording, setRecording] = useState(false);
+  const [transcribing, setTranscribing] = useState(false);
+  const recRef = useRef<RecH | null>(null);
+  const GOOGLE_STT_KEY = process.env.EXPO_PUBLIC_GOOGLE_API_KEY ?? "";
+  const [recSeconds, setRecSeconds] = useState(0);
+  const recIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pulse = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const anim = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 1, duration: 700, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 0, duration: 700, easing: Easing.inOut(Easing.ease), useNativeDriver: true })
+      ])
+    );
+    anim.start();
+    return () => anim.stop();
+  }, [pulse]);
 
   useImperativeHandle(ref, () => ({
     focusInput: () => {
@@ -123,7 +140,7 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     }
   }, [input, sending, messages, scrollToEnd]);
 
-const onSendFs = useCallback(async () => {
+  const onSendFs = useCallback(async () => {
     const text = input.trim();
     const uid = auth.currentUser?.uid;
     if (!text || sending || !chatId || !uid) return;
@@ -133,31 +150,112 @@ const onSendFs = useCallback(async () => {
     try {
       await sendFsMessage(chatId, uid, text);
       await onAfterUserMessage(text);
-
       if (isExplicitSaveTrigger(text)) {
         setSending(false);
         return;
       }
-
-      const history = messages
-        .concat({ id: "temp", role: "user", content: text })
-        .map(m => ({ role: m.role, content: m.content }));
-
+      const history = messages.concat({ id: "temp", role: "user", content: text }).map(m => ({ role: m.role, content: m.content }));
       const reply = await aiChat(text, history);
-        await sendFsMessage(chatId, "therapist-bot", reply);
-        } catch {
-          await sendFsMessage(chatId, "therapist-bot", "Sorry, I am having trouble replying right now.");
-        } finally {
-          setSending(false);
-        }
+      await sendFsMessage(chatId, "therapist-bot", reply);
+    } catch {
+      await sendFsMessage(chatId, "therapist-bot", "Sorry, I am having trouble replying right now.");
+    } finally {
+      setSending(false);
+    }
   }, [chatId, input, sending, messages, scrollToEnd, onAfterUserMessage]);
 
   const onSend = chatId ? onSendFs : onSendAi;
 
+  function startTimer() {
+    setRecSeconds(0);
+    if (recIntervalRef.current) clearInterval(recIntervalRef.current);
+    recIntervalRef.current = setInterval(() => {
+      setRecSeconds(s => s + 1);
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (recIntervalRef.current) {
+      clearInterval(recIntervalRef.current);
+      recIntervalRef.current = null;
+    }
+  }
+
+  async function onMicDown() {
+    if (sending || transcribing || recording) return;
+    setRecording(true);
+    startTimer();
+    recRef.current = await recordWavStart();
+  }
+
+  async function onMicUp() {
+    if (!recRef.current) return;
+    setRecording(false);
+    stopTimer();
+    setTranscribing(true);
+    const handle = recRef.current;
+    const uri = await handle.stopAndGetUri();
+    recRef.current = null;
+    if (!uri) {
+      setTranscribing(false);
+      return;
+    }
+    if (!GOOGLE_STT_KEY) {
+      setTranscribing(false);
+      setMessages(prev => [...prev, { id: makeId(), role: "assistant", content: "Voice transcription isn’t configured yet." }]);
+      return;
+    }
+    let clean = "";
+    try {
+      const text = await transcribeAudio(uri, {
+        apiKey: GOOGLE_STT_KEY,
+        languageCode: "en-ZA",
+        encoding: handle.encoding,
+        sampleRateHertz: 16000,
+        timeoutMs: 20000
+      });
+      clean = text.trim();
+    } catch (e) {
+    } finally {
+      setTranscribing(false);
+    }
+    if (!clean) return;
+    if (chatId) {
+      const uid = auth.currentUser?.uid;
+      if (uid) {
+        await sendFsMessage(chatId, uid, clean);
+        const history = messages.concat({ id: "temp", role: "user", content: clean }).map(m => ({ role: m.role, content: m.content }));
+        try {
+          const reply = await aiChat(clean, history);
+          await sendFsMessage(chatId, "therapist-bot", reply);
+        } catch {
+          await sendFsMessage(chatId, "therapist-bot", "Sorry, I am having trouble replying right now.");
+        }
+      }
+    } else {
+      const userMsg: UIMsg = { id: makeId(), role: "user", content: clean };
+      setMessages(prev => [...prev, userMsg]);
+      try {
+        const history = messages.concat(userMsg).map(m => ({ role: m.role, content: m.content }));
+        const reply = await aiChat(clean, history);
+        const bot: UIMsg = { id: makeId(), role: "assistant", content: reply };
+        setMessages(prev => [...prev, bot]);
+      } catch {
+        const bot: UIMsg = { id: makeId(), role: "assistant", content: "Sorry, I am having trouble replying right now." };
+        setMessages(prev => [...prev, bot]);
+      }
+    }
+  }
+
   const renderSaveOffer = (m: UIMsg) => {
     return (
       <View style={styles.offerWrap}>
-        <MessageBubble role="assistant" content={m.content} />
+        <View style={styles.bubbleRow}>
+          <View style={[styles.bubble, styles.assistantBubble]}>
+            <Text style={styles.bubbleLabel}>{assistantLabel}</Text>
+            <Text style={styles.bubbleText}>{m.content}</Text>
+          </View>
+        </View>
         <View style={styles.actionRow}>
           <TouchableOpacity style={styles.actionBtn} onPress={() => onSaveOffer("Save")}>
             <Text style={styles.actionTxt}>Save</Text>
@@ -174,7 +272,12 @@ const onSendFs = useCallback(async () => {
   const renderTitlePrompt = (m: UIMsg) => {
     return (
       <View style={styles.offerWrap}>
-        <MessageBubble role="assistant" content={m.content} />
+        <View style={styles.bubbleRow}>
+          <View style={[styles.bubble, styles.assistantBubble]}>
+            <Text style={styles.bubbleLabel}>{assistantLabel}</Text>
+            <Text style={styles.bubbleText}>{m.content}</Text>
+          </View>
+        </View>
         <View style={styles.titleRowBox}>
           <TextInput
             style={styles.inlineInput}
@@ -201,7 +304,12 @@ const onSendFs = useCallback(async () => {
     ];
     return (
       <View style={styles.offerWrap}>
-        <MessageBubble role="assistant" content={m.content} />
+        <View style={styles.bubbleRow}>
+          <View style={[styles.bubble, styles.assistantBubble]}>
+            <Text style={styles.bubbleLabel}>{assistantLabel}</Text>
+            <Text style={styles.bubbleText}>{m.content}</Text>
+          </View>
+        </View>
         <View style={styles.moodRow}>
           {opts.map(o => (
             <TouchableOpacity key={o.value} style={styles.moodChip} onPress={() => onMoodSelected(o.value)}>
@@ -219,21 +327,26 @@ const onSendFs = useCallback(async () => {
     if (item.type === "mood_prompt") return renderMoodPrompt(item);
     const isUser = item.role === "user";
     return (
-      <MessageBubble
-        role={item.role}
-        content={item.content}
-        avatarUri={isUser ? userAvatarUri : null}
-        avatarSource={!isUser ? botAvatar : undefined}
-        label={isUser ? userLabel : assistantLabel}
-      />
+      <View style={styles.bubbleRow}>
+        <View style={[styles.bubble, isUser ? styles.userBubble : styles.assistantBubble]}>
+          <Text style={styles.bubbleLabel}>{isUser ? userLabel : assistantLabel}</Text>
+          <Text style={styles.bubbleText}>{item.content}</Text>
+        </View>
+      </View>
     );
   };
 
   const kbOffset = keyboardOffset ?? insets.bottom + 70;
+  const showMic = input.trim().length === 0 && !sending && !transcribing;
+
+  const mm = String(Math.floor(recSeconds / 60)).padStart(2, "0");
+  const ss = String(recSeconds % 60).padStart(2, "0");
+  const scale = pulse.interpolate({ inputRange: [0, 1], outputRange: [1, 1.15] });
+  const opacity = pulse.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] });
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
         <View style={styles.titleRow}>
           <View style={styles.titlePill}>
             <Text style={styles.titleText}>{title}</Text>
@@ -250,6 +363,29 @@ const onSendFs = useCallback(async () => {
           onContentSizeChange={scrollToEnd}
         />
 
+        {(recording || transcribing) && (
+          <View style={styles.statusWrap}>
+            {recording && (
+              <View style={styles.statusChip}>
+                <Animated.View style={[styles.pulseDot, { transform: [{ scale }], opacity }]} />
+                <Text style={styles.statusText}>Listening… {mm}:{ss}</Text>
+                <View style={styles.statusRight}>
+                  <Ionicons name="mic" size={16} color="#fff" />
+                </View>
+              </View>
+            )}
+            {transcribing && !recording && (
+              <View style={styles.statusChip}>
+                <ActivityIndicator />
+                <Text style={styles.statusText}>Transcribing…</Text>
+                <View style={styles.statusRight}>
+                  <Feather name="loader" size={16} color="#fff" />
+                </View>
+              </View>
+            )}
+          </View>
+        )}
+
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={kbOffset}>
           <View style={[styles.inputCard, { paddingBottom: insets.bottom > 0 ? 8 : 8 }]}>
             <View style={styles.inputRow}>
@@ -263,14 +399,25 @@ const onSendFs = useCallback(async () => {
                 editable={isCollapsed}
                 multiline
               />
-              {!isCollapsed && <TapOverlay style={styles.inputOverlay} activeOpacity={1} onPress={onRequestCollapse} />}
-              <TouchableOpacity onPress={onSend} style={styles.sendBtn} disabled={sending}>
-                {sending ? <ActivityIndicator color="#FFF" /> : <Feather name="send" size={18} color="#FFF" />}
-              </TouchableOpacity>
+              {isCollapsed ? null : <View style={styles.inputOverlay} pointerEvents="box-only" />}
+              {showMic ? (
+                <TouchableOpacity
+                  onPressIn={onMicDown}
+                  onPressOut={onMicUp}
+                  style={[styles.sendBtn, recording && { backgroundColor: "rgba(69,183,209,0.9)" }]}
+                  disabled={transcribing}
+                >
+                  {transcribing ? <ActivityIndicator color="#FFF" /> : <Ionicons name="mic" size={18} color="#FFF" />}
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity onPress={onSend} style={styles.sendBtn} disabled={sending}>
+                  {sending ? <ActivityIndicator color="#FFF" /> : <Feather name="send" size={18} color="#FFF" />}
+                </TouchableOpacity>
+              )}
             </View>
           </View>
         </KeyboardAvoidingView>
-      </View>
+      </SafeAreaView>
     </TouchableWithoutFeedback>
   );
 });
@@ -303,6 +450,67 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingTop: 4,
     gap: 10
+  },
+  bubbleRow: {
+    width: "100%",
+    paddingHorizontal: 8,
+    flexDirection: "row",
+    marginBottom: 4
+  },
+  bubble: {
+    maxWidth: "85%",
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 14
+  },
+  assistantBubble: {
+    alignSelf: "flex-start",
+    backgroundColor: "rgba(255,255,255,0.12)",
+    borderTopLeftRadius: 4
+  },
+  userBubble: {
+    alignSelf: "flex-end",
+    backgroundColor: "rgba(69,183,209,0.25)",
+    marginLeft: "auto",
+    borderTopRightRadius: 4
+  },
+  bubbleLabel: {
+    fontSize: 10,
+    color: "rgba(255,255,255,0.8)",
+    marginBottom: 2
+  },
+  bubbleText: {
+    color: "#FFF",
+    fontSize: 14,
+    lineHeight: 20
+  },
+  statusWrap: {
+    paddingHorizontal: 10,
+    paddingTop: 0,
+    paddingBottom: 6
+  },
+  statusChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    alignSelf: "center",
+    backgroundColor: "rgba(255,255,255,0.16)",
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 8
+  },
+  pulseDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 20,
+    backgroundColor: "#45b7d1"
+  },
+  statusText: {
+    color: "#fff",
+    fontWeight: "700"
+  },
+  statusRight: {
+    marginLeft: 4
   },
   inputCard: {
     borderRadius: 16,

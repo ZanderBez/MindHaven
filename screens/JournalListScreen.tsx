@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, TextInput, FlatList, Image } from "react-native";
+import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, TextInput, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useRoute, RouteProp } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
@@ -19,6 +19,11 @@ export default function JournalListScreen() {
   const [highlightId, setHighlightId] = useState<string | null>(null);
   const listRef = useRef<FlatList<Journal>>(null);
 
+  useEffect(() => {
+    setUid(auth.currentUser?.uid ?? null);
+    const unsub = onAuthStateChanged(auth, u => setUid(u ? u.uid : null));
+    return unsub;
+  }, []);
 
   useEffect(() => {
     if (!uid) return;
@@ -143,31 +148,31 @@ export default function JournalListScreen() {
 
 const styles = StyleSheet.create({
   bg: {
-    flex: 1
+    flex: 1,
   },
   bgImage: {
-    opacity: 1
+    opacity: 1,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(8,12,20,0.35)"
+    backgroundColor: "rgba(8,12,20,0.35)",
   },
   safe: {
-    flex: 1
+    flex: 1,
   },
   topRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 12,
-    paddingTop: 4
+    paddingTop: 4,
   },
   avatar: {
     width: 36,
     height: 36,
     borderRadius: 18,
     borderWidth: 2,
-    borderColor: "#7AD7FF"
+    borderColor: "#7AD7FF",
   },
   avatarFallback: {
     width: 36,
@@ -175,14 +180,14 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#7AD7FF"
+    backgroundColor: "#7AD7FF",
   },
   heading: {
     fontSize: 22,
     fontWeight: "800",
     color: "#FFFFFF",
     marginTop: 6,
-    marginLeft: 16
+    marginLeft: 16,
   },
   searchRow: {
     margin: 16,
@@ -192,46 +197,46 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.18)",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
   },
   searchInput: {
     flex: 1,
     color: "#FFFFFF",
-    marginRight: 10
+    marginRight: 10,
   },
   listContent: {
     paddingHorizontal: 16,
     paddingBottom: 24,
-    gap: 12
+    gap: 12,
   },
   card: {
     borderRadius: 14,
     backgroundColor: "rgba(255,255,255,0.18)",
     padding: 14,
-    paddingRight: 60
+    paddingRight: 60,
   },
   cardTop: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "space-between",
   },
   titleWrap: {
     flexDirection: "row",
     alignItems: "center",
     flexShrink: 1,
     paddingRight: 8,
-    gap: 6
+    gap: 6,
   },
   cardTitle: {
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "900",
     flexShrink: 1,
-    maxWidth: "78%"
+    maxWidth: "78%",
   },
   cardMood: {
     color: "#FFFFFF",
-    fontSize: 16
+    fontSize: 16,
   },
   cardDate: {
     color: "#FFFFFF",
@@ -239,12 +244,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: "700",
     marginLeft: 8,
-    maxWidth: "22%"
+    maxWidth: "22%",
   },
   cardPreview: {
     color: "#FFFFFF",
     opacity: 0.95,
-    marginTop: 8
+    marginTop: 8,
   },
   chevWrap: {
     position: "absolute",
@@ -255,7 +260,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.20)"
+    backgroundColor: "rgba(255,255,255,0.20)",
   },
   fab: {
     position: "absolute",
@@ -268,11 +273,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     flexDirection: "row",
-    gap: 6
+    gap: 6,
   },
   fabPlus: {
     color: "#FFFFFF",
     fontSize: 22,
-    fontWeight: "900"
-  }
+    fontWeight: "900",
+  },
 });

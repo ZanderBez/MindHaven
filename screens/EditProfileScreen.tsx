@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Image, Alert } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Image, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
@@ -9,6 +9,7 @@ import { User, updateProfile } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { FirebaseError } from "firebase/app";
+import GlobalBackground from "../components/GlobalBackground";
 
 export default function EditProfileScreen() {
   const navigation = useNavigation<any>();
@@ -96,12 +97,8 @@ export default function EditProfileScreen() {
   }
 
   return (
-    <ImageBackground
-      source={require("../assets/Background.png")}
-      resizeMode="cover"
-      style={styles.bg}
-      imageStyle={styles.bgImage}
-    >
+    <View style={styles.root}>
+      <GlobalBackground />
       <View style={styles.overlay} />
       <SafeAreaView style={styles.safe}>
         <View style={styles.headerRow}>
@@ -151,16 +148,13 @@ export default function EditProfileScreen() {
           </TouchableOpacity>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </ImageBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  bg: {
+  root: {
     flex: 1,
-  },
-  bgImage: {
-    opacity: 1,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,

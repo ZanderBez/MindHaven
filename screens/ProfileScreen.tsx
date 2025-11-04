@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, Image } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation, useFocusEffect, useRoute, RouteProp } from "@react-navigation/native";
 import { signOut, onIdTokenChanged } from "firebase/auth";
 import { Ionicons } from "@expo/vector-icons";
 import BottomNav from "../components/BottomNav";
 import { auth } from "../firebase";
+import GlobalBackground from "../components/GlobalBackground";
 
 type RootStackParamList = {
   Profile: { refresh?: number } | undefined;
@@ -76,12 +77,8 @@ export default function ProfileScreen() {
   const tagline = "Taking it one day at a time.";
 
   return (
-    <ImageBackground
-      source={require("../assets/Background.png")}
-      resizeMode="cover"
-      style={styles.bg}
-      imageStyle={styles.bgImage}
-    >
+    <View style={styles.root}>
+      <GlobalBackground />
       <View style={styles.overlay} />
       <SafeAreaView style={styles.safe}>
         <View style={styles.headerRow}>
@@ -105,36 +102,22 @@ export default function ProfileScreen() {
           {!!tagline && <Text style={styles.tagline}>{tagline}</Text>}
 
           <View style={styles.actions}>
-            <GlassRow
-              label="Edit Profile"
-              onPress={() => navigation.navigate("EditProfile" as never)}
-            />
-            <GlassRow
-              label="Change Password"
-              onPress={() => navigation.navigate("ChangePassword" as never)}
-            />
-            <GlassRow
-              label="Journal"
-              onPress={() => navigation.navigate("Journal" as never)}
-            />
+            <GlassRow label="Edit Profile" onPress={() => navigation.navigate("EditProfile" as never)} />
+            <GlassRow label="Change Password" onPress={() => navigation.navigate("ChangePassword" as never)} />
+            <GlassRow label="Journal" onPress={() => navigation.navigate("Journal" as never)} />
           </View>
 
           <View style={{ flex: 1 }} />
 
           <TouchableOpacity style={styles.signOutBtn} onPress={handleLogout}>
-            <Ionicons
-              name="log-out-outline"
-              size={18}
-              color="#ffffffff"
-              style={{ marginRight: 8 }}
-            />
+            <Ionicons name="log-out-outline" size={18} color="#ffffffff" style={{ marginRight: 8 }} />
             <Text style={styles.signOutText}>Sign Out</Text>
           </TouchableOpacity>
         </View>
 
         <BottomNav active="profile" onChange={handleTab} />
       </SafeAreaView>
-    </ImageBackground>
+    </View>
   );
 }
 
@@ -148,8 +131,7 @@ function GlassRow({ label, onPress }: { label: string; onPress: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  bg: { flex: 1 },
-  bgImage: { opacity: 1 },
+  root: { flex: 1 },
   overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: "rgba(0,0,0,0.35)" },
   safe: { flex: 1 },
   headerRow: {

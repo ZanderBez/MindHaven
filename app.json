@@ -16,7 +16,9 @@
       "supportsTablet": true,
       "backgroundColor": "#1C1C1C",
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "We use your photo library to let you pick a profile picture."
+        "NSPhotoLibraryUsageDescription": "We use your photo library to let you pick a profile picture.",
+        "NSMicrophoneUsageDescription": "This app records short voice notes to convert speech to text.",
+        "NSSpeechRecognitionUsageDescription": "Converts your voice to text."
       }
     },
     "android": {
@@ -25,15 +27,13 @@
         "backgroundColor": "#1C1C1C"
       },
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": ["RECORD_AUDIO"],
+      "package": "com.zanderdev.MindHaven"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-video",
-      "expo-asset",
-      "expo-font"
-    ]
+    "plugins": ["expo-video", "expo-asset", "expo-font"]
   }
 }
