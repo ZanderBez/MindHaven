@@ -40,7 +40,7 @@
 
 # About MindHaven
 
-**MindHaven** is a calm, mobile-first space to chat, reflect, and keep track of how you’re doing.  
+**MindHaven** is a calm, mobile first space to chat, reflect, and keep track of how you’re doing.  
 It combines a compassionate **Therapy Buddy** chat, lightweight **journaling**, **motivational quotes**, and **voice-to-text** so you can speak or type when it’s easier.
 
 The conversational experience is powered by a hosted LLM (via the **Groq OpenAI-compatible API**) with a carefully designed prompt that keeps replies warm, brief, and consent-based.  
@@ -184,7 +184,7 @@ This validates the focus on conversational wellness as the app’s core experien
 
 **Common Feedback:**
 - Improve navigation spacing and readability.  
-- Train AI model for better contextual follow-up.  
+- Train AI model for better contextual follow up.  
 - Refactor some UI components for smoother performance.  
 
 **Implemented Actions:**
@@ -204,10 +204,7 @@ Overall, testers described MindHaven as:
 
 - Helpline integration (region-specific)
 - Daily reminders & streak tracking
-- Offline journals & PDF export
-- Multilingual support
-- End-to-end encryption
-- Admin analytics for chat safety
+- Have multiple therapy bots for different scenarios
 
 ---
 
@@ -223,7 +220,7 @@ Overall, testers described MindHaven as:
 - Securing API keys  
 - iOS microphone handling  
 - State synchronization for AI replies  
-- Cross-device UI consistency  
+- Background Image to preload before showing to page 
 
 ---
 
