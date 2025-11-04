@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState, forwardRef, useImperativeHandle, useEffect } from "react";
-import { View, TextInput, TouchableOpacity, FlatList, Text, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, Animated, Easing } from "react-native";
+import { View, TextInput, TouchableOpacity, FlatList, Text, ActivityIndicator, KeyboardAvoidingView, Platform, Keyboard, TouchableWithoutFeedback, Animated, Easing, Image } from "react-native";
 import { useSafeAreaInsets, SafeAreaView } from "react-native-safe-area-context";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { aiChat } from "../api/ai";
@@ -31,6 +31,7 @@ type Props = {
   assistantLabel?: string;
   userLabel?: string;
   botAvatar?: any;
+  userAvatar?: any;
   onAfterUserMessage?: (text: string) => Promise<void> | void;
   onSaveOffer?: (choice: "Save" | "Not now") => Promise<void> | void;
   onTitleProvided?: (t: string) => Promise<void> | void;
@@ -49,6 +50,7 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     assistantLabel = "Therapy Buddy",
     userLabel = "You",
     botAvatar,
+    userAvatar,
     onAfterUserMessage = async () => {},
     onSaveOffer = async () => {},
     onTitleProvided = async () => {},
@@ -248,10 +250,50 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     }
   }
 
+  const renderAvatar = (isUser: boolean) => {
+    const photoURL = auth.currentUser?.photoURL || null;
+    const source = isUser
+      ? userAvatar || (photoURL ? { uri: photoURL } : null)
+      : botAvatar || null;
+    if (source) {
+      return (
+        <Image
+          source={source}
+          style={{
+            width: 34,
+            height: 34,
+            borderRadius: 17,
+            borderWidth: 1,
+            borderColor: "rgba(255,255,255,0.15)",
+            marginHorizontal: 2
+          }}
+        />
+      );
+    }
+    return (
+      <View
+        style={{
+          width: 34,
+          height: 34,
+          borderRadius: 17,
+          marginHorizontal: 2,
+          backgroundColor: isUser ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 1)",
+          alignItems: "center",
+          justifyContent: "center",
+          borderWidth: 1,
+          borderColor: "rgba(255,255,255,0.15)"
+        }}
+      >
+        <Text style={{ color: "#000000ff", fontSize: 16 }}>{isUser ? "User" : "T"}</Text>
+      </View>
+    );
+  };
+
   const renderSaveOffer = (m: UIMsg) => {
     return (
       <View style={styles.offerWrap}>
         <View style={styles.bubbleRow}>
+          {renderAvatar(false)}
           <View style={[styles.bubble, styles.assistantBubble]}>
             <Text style={styles.bubbleLabel}>{assistantLabel}</Text>
             <Text style={styles.bubbleText}>{m.content}</Text>
@@ -274,6 +316,7 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     return (
       <View style={styles.offerWrap}>
         <View style={styles.bubbleRow}>
+          {renderAvatar(false)}
           <View style={[styles.bubble, styles.assistantBubble]}>
             <Text style={styles.bubbleLabel}>{assistantLabel}</Text>
             <Text style={styles.bubbleText}>{m.content}</Text>
@@ -306,6 +349,7 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     return (
       <View style={styles.offerWrap}>
         <View style={styles.bubbleRow}>
+          {renderAvatar(false)}
           <View style={[styles.bubble, styles.assistantBubble]}>
             <Text style={styles.bubbleLabel}>{assistantLabel}</Text>
             <Text style={styles.bubbleText}>{m.content}</Text>
@@ -328,11 +372,13 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     if (item.type === "mood_prompt") return renderMoodPrompt(item);
     const isUser = item.role === "user";
     return (
-      <View style={styles.bubbleRow}>
+      <View style={[styles.bubbleRow, { alignItems: "flex-end" }]}>
+        {!isUser && renderAvatar(false)}
         <View style={[styles.bubble, isUser ? styles.userBubble : styles.assistantBubble]}>
           <Text style={styles.bubbleLabel}>{isUser ? userLabel : assistantLabel}</Text>
           <Text style={styles.bubbleText}>{item.content}</Text>
         </View>
+        {isUser && renderAvatar(true)}
       </View>
     );
   };
@@ -422,5 +468,4 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     </TouchableWithoutFeedback>
   );
 });
-
 export default ChatPanel;

@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, StyleProp, TextStyle } from "react-native";
+import { Text, View, StyleProp, TextStyle, ViewStyle } from "react-native";
 
 type Props = {
   style?: StyleProp<TextStyle>;
   authorStyle?: StyleProp<TextStyle>;
+  containerStyle?: StyleProp<ViewStyle>;
   numberOfLines?: number;
   placeholder?: string;
   wrapQuotes?: boolean;
+  label?: string;
 };
 
 export default function MotivationQuote({
   style,
   authorStyle,
-  numberOfLines = 3,
+  containerStyle,
+  numberOfLines = 4,
   placeholder = "Finding a small push for today…",
   wrapQuotes = true,
+  label = "Daily Motivation",
 }: Props) {
   const [quote, setQuote] = useState<string>("");
   const [author, setAuthor] = useState<string>("");
@@ -69,23 +73,46 @@ export default function MotivationQuote({
     };
   }, []);
 
-  if (loading) {
-    return (
-      <Text style={style} numberOfLines={numberOfLines}>
-        {placeholder}
-      </Text>
-    );
-  }
-
-  const q = wrapQuotes ? `“${quote}”` : quote;
+  const body = loading ? placeholder : wrapQuotes ? `“${quote}”` : quote;
 
   return (
-    <View>
-      <Text style={[style, { fontStyle: "italic" }]} numberOfLines={numberOfLines}>
-        {q}
+    <View
+      style={[
+        {
+          paddingHorizontal: 16,
+          paddingVertical: 14,
+          borderRadius: 18,
+          backgroundColor: "rgba(12,18,28,0.78)",
+          borderWidth: 1,
+          borderColor: "rgba(255,255,255,0.10)",
+          shadowColor: "#000",
+          shadowOpacity: 0.25,
+          shadowRadius: 14,
+          shadowOffset: { width: 0, height: 8 },
+        },
+        containerStyle,
+      ]}
+    >
+      <Text
+        style={{
+          color: "#FFFFFF",
+          opacity: 0.9,
+          fontSize: 12,
+          fontWeight: "800",
+          letterSpacing: 1,
+          textTransform: "uppercase",
+          marginBottom: 6,
+        }}
+      >
+        {label}
       </Text>
-      {!!author && (
-        <Text style={[authorStyle || style, { fontStyle: "normal", opacity: 0.9, marginTop: 4 }]}>
+
+      <Text style={[{ color: "#FFFFFF", fontSize: 18, lineHeight: 26, fontStyle: "italic" }, style]} numberOfLines={numberOfLines}>
+        {body}
+      </Text>
+
+      {!!author && !loading && (
+        <Text style={[{ color: "#FFFFFF", opacity: 0.8, fontSize: 14, marginTop: 4 }, authorStyle]}>
           — {author}
         </Text>
       )}

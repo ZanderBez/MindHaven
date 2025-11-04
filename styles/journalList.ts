@@ -76,7 +76,7 @@ export const styles = StyleSheet.create({
 
   cardMood: {
     color: "#FFFFFF",
-    fontSize: 16,
+    fontSize: 20,
   },
 
   cardDate: {

@@ -64,8 +64,8 @@ export const styles = StyleSheet.create({
   },
 
   moodBtn: {
-    width: 38,
-    height: 38,
+    width: 45,
+    height: 45,
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -73,7 +73,7 @@ export const styles = StyleSheet.create({
   },
 
   moodActive: {
-    backgroundColor: "rgba(255,255,255,0.28)",
+    backgroundColor: "rgba(0, 204, 255, 1)",
   },
 
   moodText: {
