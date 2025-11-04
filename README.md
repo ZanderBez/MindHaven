@@ -3,6 +3,11 @@
 ![MindHaven Header](./ReadMeAssets/banner.png)
 <a id="readme-top"></a>
 
+[![Contributors](https://img.shields.io/github/contributors/ZanderBez/MindHaven.svg?style=for-the-badge)](https://github.com/ZanderBez/MindHaven/graphs/contributors)
+[![Forks](https://img.shields.io/github/forks/ZanderBez/MindHaven.svg?style=for-the-badge)](https://github.com/ZanderBez/MindHaven/network/members)
+[![Stargazers](https://img.shields.io/github/stars/ZanderBez/MindHaven.svg?style=for-the-badge)](https://github.com/ZanderBez/MindHaven/stargazers)
+[![Issues](https://img.shields.io/github/issues/ZanderBez/MindHaven.svg?style=for-the-badge)](https://github.com/ZanderBez/MindHaven/issues)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 ---
 
@@ -12,6 +17,7 @@
 - [Environment Variables](#environment-variables)
 - [How To Install](#how-to-install)
 - [Features](#features)
+- [User Testing & Improvements](#user-testing--improvements)
 - [Future Implementations](#future-implementations)
 - [Development Process](#development-process)
   - [Challenges](#challenges)
@@ -83,6 +89,7 @@ EXPO_PUBLIC_GOOGLE_API_KEY=YOUR_GOOGLE_CLOUD_API_KEY
 
 ---
 
+
 ## How To Install
 ### 1. Clone the Repo
 
@@ -129,7 +136,6 @@ npx expo start
 | Authentication | Secure Firebase login & signup. |
 | Profile | Update details & profile image. |
 
----
 ---
 
 ## User Testing & Improvements
@@ -194,7 +200,6 @@ Overall, testers described MindHaven as:
 
 ---
 
-
 ## Future Implementations
 
 - Helpline integration (region-specific)
@@ -249,22 +254,52 @@ npx expo start
 ---
 ## Mockups
 
-Add screenshots in your `ReadMeAssets/` folder and reference them here:
-
-- ![Splash](./ReadMeAssets/Splash.png)
-- ![SignUp](./ReadMeAssets/SignUp.png)
-- ![SignIn](./ReadMeAssets/SignIn.png)
-- ![Home](./ReadMeAssets/Home.png)
-- ![Chat](./ReadMeAssets/Chat.png)
-- ![Chat Room](./ReadMeAssets/ChatRoom.png)
-- ![Journal](./ReadMeAssets/Journal.png)
-- ![Edit Journal](./ReadMeAssets/EditJournal.png)
-- ![Profile](./ReadMeAssets/Profile.png)
-- ![Chang Password](./ReadMeAssets/ChangPassword.png)
-- ![Edit Profile](./ReadMeAssets/EditProfile.png)
-
+### Splash Screen
+A calm, minimalist entry screen that sets the tone for MindHaven’s reflective and supportive design.  
+![Splash Screen](./ReadMeAssets/Splash.png)
 
 ---
+
+### Sign In & Sign Up
+Clean onboarding screens for new and returning users with Firebase Authentication integration.  
+![Sign In & Sign Up](./ReadMeAssets/SignIn&SignUp.png)
+
+---
+
+### Home Page
+Displays daily motivational quotes, recent chats, and quick links to journals.  
+![Home Page](./ReadMeAssets/Home.png)
+
+---
+
+### Chat Overview
+Main chat screen showing recent AI therapy sessions with message previews.  
+![Chat Overview](./ReadMeAssets/Chat.png)
+
+---
+
+### Chat Room
+One-on-one conversation with the Therapy Buddy AI, featuring message input, emoji reactions, and voice-to-text input.  
+![Chat Room](./ReadMeAssets/ChatRoom.png)
+
+---
+
+### Journal List
+Users can browse or open previous journal entries saved from chat insights.  
+![Journal List](./ReadMeAssets/Journal.png)
+
+---
+
+### Edit Journal
+Allows users to edit or delete their saved journals for continuous reflection and progress tracking.  
+![Edit Journal](./ReadMeAssets/EditJournal.png)
+
+---
+
+### Profile Page
+User profile screen showing avatar, editable personal details, and account management options.  
+![Profile Page](./ReadMeAssets/Profile.png)
+
 
 ## Permissions
 **iOS:**  
