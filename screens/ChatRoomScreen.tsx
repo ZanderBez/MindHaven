@@ -1,9 +1,11 @@
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
-import { ImageBackground, StyleSheet, View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
+import GlobalBackground from "../components/GlobalBackground";
 import ChatPanel from "../components/ChatPanel";
 import { maybeOfferAfterUserMessage, respondToSaveOffer, onTitleProvided, onMoodSelected } from "../services/journalFlow";
+import { styles } from "../styles/chatRoom";
 
 export default function ChatRoomScreen() {
   const route = useRoute<RouteProp<Record<string, { chatId: string; title?: string }>, string>>();
@@ -27,12 +29,8 @@ export default function ChatRoomScreen() {
   };
 
   return (
-    <ImageBackground
-      source={require("../assets/Background.png")}
-      resizeMode="cover"
-      style={styles.bg}
-      imageStyle={styles.bgImage}
-    >
+    <View style={styles.bg}>
+      <GlobalBackground />
       <SafeAreaView style={styles.safe}>
         <View style={styles.headerRow}>
           <TouchableOpacity
@@ -61,50 +59,6 @@ export default function ChatRoomScreen() {
           </View>
         </View>
       </SafeAreaView>
-    </ImageBackground>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  bg: {
-    flex: 1
-  },
-  bgImage: {
-    opacity: 1
-  },
-  safe: {
-    flex: 1
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 4
-  },
-  backBtn: {
-    width: 28,
-    height: 28,
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  title: {
-    flex: 1,
-    fontSize: 22,
-    fontWeight: "800",
-    color: "#FFF",
-    textAlign: "center"
-  },
-  outerPad: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 6,
-    paddingBottom: 12,
-    gap: 12
-  },
-  panelWrap: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.10)",
-    borderRadius: 18,
-    padding: 10
-  }
-});

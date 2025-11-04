@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { EmailAuthProvider, getAuth, reauthenticateWithCredential, updatePassword } from "firebase/auth";
 import { Feather } from "@expo/vector-icons";
+import GlobalBackground from "../components/GlobalBackground";
+import { styles } from "../styles/changePassword";
 
 export default function ChangePasswordScreen() {
-  const navigation = useNavigation();
+  const navigation = useNavigation<any>();
   const auth = getAuth();
   const user = auth.currentUser;
+
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -58,12 +61,8 @@ export default function ChangePasswordScreen() {
   }
 
   return (
-    <ImageBackground
-      source={require("../assets/Background.png")}
-      resizeMode="cover"
-      style={styles.bg}
-      imageStyle={styles.bgImage}
-    >
+    <View style={styles.root}>
+      <GlobalBackground />
       <View style={styles.overlay} />
       <SafeAreaView style={styles.safe}>
         <View style={styles.headerRow}>
@@ -87,7 +86,7 @@ export default function ChangePasswordScreen() {
                 secureTextEntry={!showCurrent}
                 style={styles.input}
               />
-              <TouchableOpacity onPress={() => setShowCurrent(v => !v)} style={styles.eyeBtn} hitSlop={styles.hitSlop as any}>
+              <TouchableOpacity onPress={() => setShowCurrent((v) => !v)} style={styles.eyeBtn} hitSlop={styles.hitSlop as any}>
                 <Feather name={showCurrent ? "eye" : "eye-off"} size={20} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
@@ -105,7 +104,7 @@ export default function ChangePasswordScreen() {
                 secureTextEntry={!showNew}
                 style={styles.input}
               />
-              <TouchableOpacity onPress={() => setShowNew(v => !v)} style={styles.eyeBtn} hitSlop={styles.hitSlop as any}>
+              <TouchableOpacity onPress={() => setShowNew((v) => !v)} style={styles.eyeBtn} hitSlop={styles.hitSlop as any}>
                 <Feather name={showNew ? "eye" : "eye-off"} size={20} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
@@ -123,7 +122,7 @@ export default function ChangePasswordScreen() {
                 secureTextEntry={!showConfirm}
                 style={styles.input}
               />
-              <TouchableOpacity onPress={() => setShowConfirm(v => !v)} style={styles.eyeBtn} hitSlop={styles.hitSlop as any}>
+              <TouchableOpacity onPress={() => setShowConfirm((v) => !v)} style={styles.eyeBtn} hitSlop={styles.hitSlop as any}>
                 <Feather name={showConfirm ? "eye" : "eye-off"} size={20} color="#FFFFFF" />
               </TouchableOpacity>
             </View>
@@ -137,106 +136,6 @@ export default function ChangePasswordScreen() {
           </TouchableOpacity>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </ImageBackground>
+    </View>
   );
 }
-
-const styles = StyleSheet.create({
-  bg: {
-    flex: 1,
-  },
-  bgImage: {
-    opacity: 1,
-  },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.35)",
-  },
-  safe: {
-    flex: 1,
-  },
-  headerRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 4,
-  },
-  iconBtn: {
-    width: 28,
-    height: 28,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  hitSlop: {
-    top: 10,
-    left: 10,
-    right: 10,
-    bottom: 10,
-  },
-  title: {
-    flex: 1,
-    fontSize: 22,
-    fontWeight: "800",
-    color: "#FFFFFF",
-    textAlign: "center",
-  },
-  headerSpacer: {
-    width: 28,
-    height: 28,
-  },
-  body: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 12,
-  },
-  group: {
-    marginBottom: 14,
-  },
-  label: {
-    color: "rgba(255,255,255,0.85)",
-    fontSize: 13,
-    marginBottom: 8,
-    fontWeight: "700",
-  },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    height: 52,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    backgroundColor: "rgba(255,255,255,0.20)",
-  },
-  input: {
-    flex: 1,
-    color: "#FFFFFF",
-    fontSize: 16,
-    marginLeft: 10,
-  },
-  eyeBtn: {
-    width: 36,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  err: {
-    color: "#FFD1D1",
-    marginTop: 6,
-  },
-  ok: {
-    color: "#C6FFD1",
-    marginTop: 6,
-  },
-  primaryBtn: {
-    height: 52,
-    borderRadius: 16,
-    backgroundColor: "#45B7D1",
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 8,
-  },
-  primaryText: {
-    color: "#ffffffff",
-    fontSize: 16,
-    fontWeight: "800",
-    letterSpacing: 0.2,
-  },
-});
