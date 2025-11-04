@@ -1,4 +1,3 @@
-// screens/JournalListScreen.tsx
 import React, { useEffect, useRef } from "react";
 import { View, Text, TouchableOpacity, TextInput, FlatList } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";

@@ -1,16 +1,6 @@
 import { getAuth } from "firebase/auth";
 import { db } from "../firebase";
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  orderBy,
-  query,
-  serverTimestamp,
-  updateDoc
-} from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, serverTimestamp, updateDoc} from "firebase/firestore";
 import * as Journal from "../services/journalService";
 
 const KEYWORDS = ["stressed","anxious","overwhelmed","sad","panic","burnt out","depressed","tired","angry","worried"];

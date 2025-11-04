@@ -1,4 +1,3 @@
-// screens/ChatsScreen.tsx
 import React from "react";
 import { View, FlatList, Pressable, Text, TouchableOpacity, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
