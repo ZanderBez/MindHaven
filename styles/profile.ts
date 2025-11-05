@@ -61,7 +61,7 @@ export const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     borderRadius: 76,
-    borderWidth: 3,
+    borderWidth: 2,
     borderColor: "#7AD7FF",
   },
 
@@ -72,8 +72,7 @@ export const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     borderRadius: 76,
-    borderWidth: 3,
-    borderColor: "#7AD7FF",
+    borderWidth: 2,
   },
 
   name: {

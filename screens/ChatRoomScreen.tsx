@@ -1,7 +1,6 @@
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
 import GlobalBackground from "../components/GlobalBackground";
 import ChatPanel from "../components/ChatPanel";
 import { maybeOfferAfterUserMessage, respondToSaveOffer, onTitleProvided, onMoodSelected } from "../services/journalFlow";
@@ -31,19 +30,7 @@ export default function ChatRoomScreen() {
   return (
     <View style={styles.bg}>
       <GlobalBackground />
-      <SafeAreaView style={styles.safe}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backBtn}
-            hitSlop={{ top: 10, left: 10, right: 10, bottom: 10 }}
-          >
-            <Ionicons name="chevron-back" size={28} color="#FFFFFF" />
-          </TouchableOpacity>
-          <Text style={styles.title}>{title ?? "Therapy Buddy"}</Text>
-          <View style={{ width: 28 }} />
-        </View>
-
+      <SafeAreaView style={styles.safe} edges={["top", "bottom"]}>
         <View style={styles.outerPad}>
           <View style={styles.panelWrap}>
             <ChatPanel
@@ -55,6 +42,7 @@ export default function ChatRoomScreen() {
               onSaveOffer={handleSaveOffer}
               onTitleProvided={handleTitleProvided}
               onMoodSelected={handleMoodSelected}
+              onBack={() => navigation.goBack()}
             />
           </View>
         </View>

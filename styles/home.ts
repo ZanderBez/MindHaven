@@ -6,50 +6,56 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(8,12,20,0.35)",
   },
 
-  heroRow: {
+ heroRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 14,
+    paddingTop: 8,
   },
-
-  heroAvatar: {
-    width: 78,
-    height: 78,
-    borderRadius: 39,
-    borderWidth: 3,
+  heroAvatarBox: {
+    width: 80,
+    height: 80,
+    borderRadius: 50,
+    overflow: "hidden",
+    position: "relative",
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderWidth: 2,
     borderColor: "#7AD7FF",
-  },
-
-  heroAvatarFallback: {
-    width: 78,
-    height: 78,
-    borderRadius: 39,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#ffffffff",
   },
-
+  heroAvatarImg: {
+    width: "100%",
+    height: "100%",
+    borderRadius: 24,
+    position: "absolute",
+    left: 0,
+    top: 0,
+  },
+  heroAvatarFallback: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderWidth: 2,
+    borderColor: "#7AD7FF",
+  },
   heroTextCol: {
-    flex: 1,
+    marginLeft: 12,
   },
-
   heroGreet: {
-    color: "#FFFFFF",
-    opacity: 0.95,
-    fontSize: 18,
-    fontWeight: "700",
+    color: "#FFF",
+    opacity: 0.9,
+    fontSize: 13,
   },
-
   heroName: {
-    color: "#FFFFFF",
+    color: "#FFF",
     fontSize: 30,
-    fontWeight: "900",
-    lineHeight: 34,
+    fontWeight: "800",
   },
-
   heroSpacer: {
-    width: 24,
-    height: 24,
+    flex: 1,
   },
 
   motivationBlock: {

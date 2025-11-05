@@ -1,14 +1,19 @@
 import { StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
+  container: { flex: 1 },
   titleRow: {
-    paddingHorizontal: 6,
-    paddingTop: 6,
     paddingBottom: 10,
-    alignItems: "center"
+    alignItems: "center",
+    flexDirection: "row",
+    paddingHorizontal: 8
+  },
+  backBtn: {
+    width: 28,
+    height: 28,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 8
   },
   titlePill: {
     paddingHorizontal: 18,
@@ -24,7 +29,7 @@ export const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 8,
-    paddingTop: 4,
+    paddingTop: 0,
     gap: 10
   },
   bubbleRow: {
@@ -85,8 +90,8 @@ export const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "700"
   },
-  statusRight: {
-    marginLeft: 4
+  statusRight: { 
+    marginLeft: 4 
   },
   inputCard: {
     borderRadius: 16,
@@ -110,12 +115,12 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.10)",
     color: "#FFF"
   },
-  inputOverlay: {
-    position: "absolute",
-    left: 0,
-    right: 52,
-    top: 0,
-    bottom: 0
+  inputOverlay: { 
+    position: "absolute", 
+    left: 0, 
+    right: 52, 
+    top: 0, 
+    bottom: 0 
   },
   sendBtn: {
     width: 44,
@@ -126,12 +131,12 @@ export const styles = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.25)"
   },
   offerWrap: {
-    gap: 8
-  },
-  actionRow: {
-    flexDirection: "row",
-    gap: 8,
-    paddingHorizontal: 8
+     gap: 8 
+    },
+  actionRow: { 
+    flexDirection: "row", 
+    gap: 8, 
+    paddingHorizontal: 8 
   },
   actionBtn: {
     paddingHorizontal: 14,
@@ -139,15 +144,15 @@ export const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "rgba(255,255,255,0.18)"
   },
-  actionTxt: {
-    color: "#FFF",
-    fontWeight: "700"
+  actionTxt: { 
+    color: "#FFF", 
+    fontWeight: "700" 
   },
-  titleRowBox: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 8
+  titleRowBox: { 
+    flexDirection: "row", 
+    alignItems: "center", 
+    gap: 8, 
+    paddingHorizontal: 8 
   },
   inlineInput: {
     flex: 1,
@@ -167,14 +172,14 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(255,255,255,0.25)"
   },
-  smallBtnTxt: {
-    color: "#FFF",
-    fontWeight: "700"
+  smallBtnTxt: { 
+    color: "#FFF", 
+    fontWeight: "700" 
   },
-  moodRow: {
-    flexDirection: "row",
-    gap: 10,
-    paddingHorizontal: 8
+  moodRow: { 
+    flexDirection: "row", 
+    gap: 10, 
+    paddingHorizontal: 8 
   },
   moodChip: {
     width: 40,
@@ -184,7 +189,7 @@ export const styles = StyleSheet.create({
     justifyContent: "center",
     backgroundColor: "rgba(255,255,255,0.18)"
   },
-  moodTxt: {
-    fontSize: 22
+  moodTxt: { 
+    fontSize: 22 
   }
 });

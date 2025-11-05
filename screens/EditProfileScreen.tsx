@@ -1,11 +1,12 @@
 import React from "react";
-import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Image, Alert,} from "react-native";
+import { View, Text, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Feather } from "@expo/vector-icons";
 import GlobalBackground from "../components/GlobalBackground";
 import { styles } from "../styles/editProfile";
 import { useEditProfile } from "../hooks/useEditProfile";
+import ProfileAvatar from "../components/ProfileAvatar";
 
 export default function EditProfileScreen() {
   const navigation = useNavigation<any>();
@@ -45,17 +46,17 @@ export default function EditProfileScreen() {
 
         <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.body}>
           <TouchableOpacity onPress={pickImage} style={styles.avatarPicker} activeOpacity={0.9}>
-            {pickedUri || photoURL ? (
-              <View style={styles.avatarRing}>
-                <Image source={{ uri: pickedUri || photoURL }} style={styles.avatar} />
-              </View>
-            ) : (
-              <View style={styles.avatarRing}>
-                <View style={styles.avatarFallback}>
-                  <Feather name="user" size={56} color="#FFFFFF" />
-                </View>
-              </View>
-            )}
+            <View style={styles.avatarRing}>
+              <ProfileAvatar
+                uri={pickedUri || photoURL}
+                cacheBust={0}
+                inheritSize
+                showRing={false}
+                containerStyle={styles.avatar}
+                imageStyle={styles.avatar}
+                fallbackStyle={styles.avatarFallback}
+              />
+            </View>
             <View style={styles.changePhotoPill}>
               {uploading ? <ActivityIndicator color="#ffffffff" /> : <Text style={styles.changePhotoText}>Change Photo</Text>}
             </View>
@@ -78,7 +79,7 @@ export default function EditProfileScreen() {
           {err ? <Text style={styles.err}>{err}</Text> : null}
 
           <TouchableOpacity style={styles.primaryBtn} onPress={onSave} disabled={saving || uploading} activeOpacity={0.9}>
-            {saving ? <ActivityIndicator color="#0B0B12" /> : <Text style={styles.primaryText}>Save Changes</Text>}
+            {saving ? <ActivityIndicator color="#ffffffff" /> : <Text style={styles.primaryText}>Save Changes</Text>}
           </TouchableOpacity>
         </KeyboardAvoidingView>
       </SafeAreaView>

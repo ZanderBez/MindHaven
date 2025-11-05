@@ -105,7 +105,7 @@ export default function SignUpScreen() {
               <View style={styles.divider} />
 
               <Pressable style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]} onPress={onSubmit} disabled={loading}>
-                {loading ? <ActivityIndicator /> : <Text style={styles.buttonText}>SIGN UP</Text>}
+                {loading ? <ActivityIndicator color="#ffffffff" /> : <Text style={styles.buttonText}>SIGN UP</Text>}
               </Pressable>
             </View>
           </ScrollView>

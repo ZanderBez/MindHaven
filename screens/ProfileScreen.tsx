@@ -38,7 +38,20 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.content}>
-          <ProfileAvatar uri={photo} cacheBust={cacheBust} />
+          <View style={styles.avatarWrap}>
+            <View style={styles.avatarRing}>
+              <ProfileAvatar
+                uri={photo}
+                cacheBust={cacheBust}
+                inheritSize
+                showRing={false}
+                containerStyle={styles.avatar}
+                imageStyle={styles.avatar}
+                fallbackStyle={styles.avatarFallback}
+              />
+            </View>
+          </View>
+
           <Text style={styles.name}>{name}</Text>
           {!!tagline && <Text style={styles.tagline}>{tagline}</Text>}
 

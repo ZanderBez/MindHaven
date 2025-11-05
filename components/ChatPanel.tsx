@@ -9,6 +9,8 @@ import { isExplicitSaveTrigger } from "../services/journalFlow";
 import { recordWavStart, RecHandle as RecH } from "../services/recorder";
 import { transcribeAudio } from "../services/googleStt";
 import { styles } from "../styles/chatPanel";
+import ProfileAvatar from "../components/ProfileAvatar";
+import ChatHeader from "./ChatHeader";
 
 export type ChatPanelRef = { focusInput: () => void };
 
@@ -36,6 +38,7 @@ type Props = {
   onSaveOffer?: (choice: "Save" | "Not now") => Promise<void> | void;
   onTitleProvided?: (t: string) => Promise<void> | void;
   onMoodSelected?: (mood: number) => Promise<void> | void;
+  onBack?: () => void;
 };
 
 const makeId = () => `${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
@@ -54,7 +57,8 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     onAfterUserMessage = async () => {},
     onSaveOffer = async () => {},
     onTitleProvided = async () => {},
-    onMoodSelected = async () => {}
+    onMoodSelected = async () => {},
+    onBack
   },
   ref
 ) {
@@ -252,13 +256,53 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
 
   const renderAvatar = (isUser: boolean) => {
     const photoURL = auth.currentUser?.photoURL || null;
-    const source = isUser
-      ? userAvatar || (photoURL ? { uri: photoURL } : null)
-      : botAvatar || null;
-    if (source) {
+    const passed = isUser ? userAvatar : botAvatar;
+    const uri =
+      typeof passed === "string"
+        ? passed
+        : passed && typeof passed === "object" && "uri" in passed
+        ? (passed as any).uri
+        : isUser
+        ? photoURL
+        : null;
+
+    if (uri) {
+      return (
+        <ProfileAvatar
+          uri={uri}
+          cacheBust={0}
+          size={34}
+          showRing={false}
+          inheritSize={false}
+          containerStyle={{
+            width: 34,
+            height: 34,
+            borderRadius: 17,
+            overflow: "hidden",
+            borderWidth: 1,
+            borderColor: "rgba(255,255,255,0.15)",
+            marginHorizontal: 2
+          }}
+          imageStyle={{ width: 34, height: 34, borderRadius: 17 }}
+          fallbackStyle={{
+            width: 34,
+            height: 34,
+            borderRadius: 17,
+            marginHorizontal: 2,
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: isUser ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 1)",
+            borderWidth: 1,
+            borderColor: "rgba(255,255,255,0.15)"
+          }}
+        />
+      );
+    }
+
+    if (typeof passed === "number") {
       return (
         <Image
-          source={source}
+          source={passed}
           style={{
             width: 34,
             height: 34,
@@ -270,6 +314,7 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
         />
       );
     }
+
     return (
       <View
         style={{
@@ -284,7 +329,7 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
           borderColor: "rgba(255,255,255,0.15)"
         }}
       >
-        <Text style={{ color: "#000000ff", fontSize: 16 }}>{isUser ? "User" : "T"}</Text>
+        <Text style={{ color: "#000000ff", fontSize: 16 }}>{isUser ? "U" : "T"}</Text>
       </View>
     );
   };
@@ -393,12 +438,8 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
-        <View style={styles.titleRow}>
-          <View style={styles.titlePill}>
-            <Text style={styles.titleText}>{title}</Text>
-          </View>
-        </View>
+      <SafeAreaView style={styles.container} edges={["bottom"]}>
+        <ChatHeader title={title} onBack={onBack} />
 
         <FlatList
           ref={listRef}
