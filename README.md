@@ -246,7 +246,10 @@ Overall, testers described MindHaven as:
 ```bash
 npx expo start
 ```
-3. Scan the QR to open **MindHaven** instantly.
+3. Or simply scan the QR code below to open **MindHaven** instantly in Expo Go:
+
+<p align="center"> <img src="./ReadMeAssets/mindhaven-expo-qr.png" alt="MindHaven Expo QR" width="250"/> </p> 
+
 
 ---
 ## Mockups
