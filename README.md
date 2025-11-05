@@ -355,6 +355,7 @@ See [LICENSE](./LICENSE) for details.
 ---
 
 ## Demonstration Video
-[MindHaven Demo Video](https://your-demo-link)
+Demo Video made on a Android Emulator -
+[MindHaven Demo Video](https://drive.google.com/file/d/1i9kVCEDqfqBgHBkB-l6xE-O7OhAlbU_9/view?usp=sharing)
 
 <p align="right"><a href="#readme-top">[⬆️ Back to top]</a></p>
