@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "../firebase";
 import { Chat, subscribeUserChats, createNewChatWithBot, deleteChat } from "../services/chatService";
+import * as Haptics from "expo-haptics";
 
 export function useChats() {
   const [uid, setUid] = useState<string | null>(null);
@@ -39,11 +40,11 @@ export function useChats() {
     []
   );
 
-  async function newSession() {
+  async function newSession(buddyName: string) {
     if (!uid || creating) return null;
     setCreating(true);
     try {
-      const chatId = await createNewChatWithBot(uid);
+      const chatId = await createNewChatWithBot(uid, buddyName);
       return chatId;
     } finally {
       setCreating(false);
@@ -51,8 +52,8 @@ export function useChats() {
   }
 
   function removeChat(id: string) {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     return deleteChat(id);
   }
-
   return { uid, chats, creating, fmtDate, newSession, removeChat };
 }

@@ -52,9 +52,9 @@ export async function markChatRead(chatId: string, uid: string) {
   await updateDoc(ref, { [field]: serverTimestamp() });
 }
 
-export async function createNewChatWithBot(uid: string) {
+export async function createNewChatWithBot(uid: string, buddyName: string) {
   const chatRef = await addDoc(collection(db, "chats"), {
-    title: "Therapy Buddy",
+    title: buddyName,
     participants: [uid, "therapist-bot"],
     participantMeta: {
       [uid]: { unread: 0, pinned: false, lastReadAt: null },
@@ -66,14 +66,15 @@ export async function createNewChatWithBot(uid: string) {
     updatedAt: serverTimestamp()
   });
 
+
   const id = chatRef.id;
 
-  addDoc(collection(db, "chats", id, "messages"), {
+  await addDoc(collection(db, "chats", id, "messages"), {
     text: "What do you want to talk about today",
     senderId: "therapist-bot",
     createdAt: serverTimestamp(),
     type: "text"
-  }).catch(() => {});
+  });
 
   return id;
 }

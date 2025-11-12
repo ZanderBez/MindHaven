@@ -5,11 +5,35 @@ import GlobalBackground from "../components/GlobalBackground";
 import ChatPanel from "../components/ChatPanel";
 import { maybeOfferAfterUserMessage, respondToSaveOffer, onTitleProvided, onMoodSelected } from "../services/journalFlow";
 import { styles } from "../styles/chatRoom";
+import { useEffect, useState } from "react";
+import { getAuth } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 export default function ChatRoomScreen() {
   const route = useRoute<RouteProp<Record<string, { chatId: string; title?: string }>, string>>();
   const navigation = useNavigation<any>();
   const { chatId, title } = route.params;
+  const [buddyName, setBuddyName] = useState(title ?? "Therapy Buddy");
+
+  useEffect(() => {
+    const fetchBuddyName = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (user) {
+        const ref = doc(db, "users", user.uid);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.buddyName) {
+            setBuddyName(data.buddyName);
+            navigation.setOptions({ title: data.buddyName });
+          }
+        }
+      }
+    };
+    fetchBuddyName();
+  }, [navigation]);
 
   const handleAfterUserMessage = async (text: string) => {
     await maybeOfferAfterUserMessage(chatId, text);
@@ -35,8 +59,8 @@ export default function ChatRoomScreen() {
           <View style={styles.panelWrap}>
             <ChatPanel
               chatId={chatId}
-              title={title ?? "Therapy Buddy"}
-              assistantLabel="Therapy Buddy"
+              title={buddyName}
+              assistantLabel={buddyName}
               userLabel="You"
               onAfterUserMessage={handleAfterUserMessage}
               onSaveOffer={handleSaveOffer}

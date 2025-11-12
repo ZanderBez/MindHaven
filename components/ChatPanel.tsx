@@ -254,85 +254,73 @@ const ChatPanel = forwardRef<ChatPanelRef, Props>(function ChatPanel(
     }
   }
 
-  const renderAvatar = (isUser: boolean) => {
-    const photoURL = auth.currentUser?.photoURL || null;
-    const passed = isUser ? userAvatar : botAvatar;
-    const uri =
-      typeof passed === "string"
-        ? passed
-        : passed && typeof passed === "object" && "uri" in passed
-        ? (passed as any).uri
-        : isUser
-        ? photoURL
-        : null;
+    const renderAvatar = (isUser: boolean) => {
+      const photoURL = auth.currentUser?.photoURL || null;
+      const passed = isUser ? userAvatar : botAvatar;
+      const displayLetter = isUser
+        ? auth.currentUser?.displayName?.[0]?.toUpperCase() ?? "U"
+        : assistantLabel?.[0]?.toUpperCase() ?? "T";
 
-    if (uri) {
-      return (
-        <ProfileAvatar
-          uri={uri}
-          cacheBust={0}
-          size={34}
-          showRing={false}
-          inheritSize={false}
-          containerStyle={{
-            width: 34,
-            height: 34,
-            borderRadius: 17,
-            overflow: "hidden",
-            borderWidth: 1,
-            borderColor: "rgba(255,255,255,0.15)",
-            marginHorizontal: 2
-          }}
-          imageStyle={{ width: 34, height: 34, borderRadius: 17 }}
-          fallbackStyle={{
-            width: 34,
-            height: 34,
-            borderRadius: 17,
-            marginHorizontal: 2,
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: isUser ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 1)",
-            borderWidth: 1,
-            borderColor: "rgba(255,255,255,0.15)"
-          }}
-        />
-      );
-    }
+      const uri =
+        typeof passed === "string"
+          ? passed
+          : passed && typeof passed === "object" && "uri" in passed
+          ? (passed as any).uri
+          : isUser
+          ? photoURL
+          : null;
 
-    if (typeof passed === "number") {
+      if (uri) {
+        return (
+          <ProfileAvatar
+            uri={uri}
+            cacheBust={0}
+            size={34}
+            showRing={false}
+            inheritSize={false}
+            containerStyle={{
+              width: 34,
+              height: 34,
+              borderRadius: 17,
+              overflow: "hidden",
+              borderWidth: 1,
+              borderColor: "rgba(255,255,255,0.15)",
+              marginHorizontal: 2
+            }}
+            imageStyle={{ width: 34, height: 34, borderRadius: 17 }}
+            fallbackStyle={{
+              width: 34,
+              height: 34,
+              borderRadius: 17,
+              marginHorizontal: 2,
+              alignItems: "center",
+              justifyContent: "center",
+              backgroundColor: isUser ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 1)",
+              borderWidth: 1,
+              borderColor: "rgba(255,255,255,0.15)"
+            }}
+          />
+        );
+      }
+
       return (
-        <Image
-          source={passed}
+        <View
           style={{
             width: 34,
             height: 34,
             borderRadius: 17,
+            marginHorizontal: 2,
+            backgroundColor: isUser ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 1)",
+            alignItems: "center",
+            justifyContent: "center",
             borderWidth: 1,
-            borderColor: "rgba(255,255,255,0.15)",
-            marginHorizontal: 2
+            borderColor: "rgba(255,255,255,0.15)"
           }}
-        />
+        >
+          <Text style={{ color: "#000000ff", fontSize: 16 }}>{displayLetter}</Text>
+        </View>
       );
-    }
-
-    return (
-      <View
-        style={{
-          width: 34,
-          height: 34,
-          borderRadius: 17,
-          marginHorizontal: 2,
-          backgroundColor: isUser ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 1)",
-          alignItems: "center",
-          justifyContent: "center",
-          borderWidth: 1,
-          borderColor: "rgba(255,255,255,0.15)"
-        }}
-      >
-        <Text style={{ color: "#000000ff", fontSize: 16 }}>{isUser ? "U" : "T"}</Text>
-      </View>
-    );
-  };
+    };
 
   const renderSaveOffer = (m: UIMsg) => {
     return (

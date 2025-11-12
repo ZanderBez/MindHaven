@@ -1,10 +1,9 @@
-import React, { useState } from "react"
-import { View, Text, TextInput, Pressable, ActivityIndicator, Alert, StyleSheet, ImageBackground, Image, ScrollView, Platform, KeyboardAvoidingView, TouchableOpacity } from "react-native"
-import { useNavigation } from "@react-navigation/native"
-import { Feather } from "@expo/vector-icons"
-import { registerUser } from "../services/authService"
+import React, { useState } from "react";
+import { View, Text, TextInput, Pressable, ActivityIndicator, ImageBackground, Image, ScrollView, Platform, KeyboardAvoidingView, TouchableOpacity} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { Feather } from "@expo/vector-icons";
+import { registerUser } from "../services/authService";
 import { styles } from "../styles/signup";
-
 
 export default function SignUpScreen() {
   const navigation = useNavigation<any>();
@@ -43,18 +42,29 @@ export default function SignUpScreen() {
   };
 
   return (
-    <KeyboardAvoidingView style={styles.flex} behavior={Platform.select({ ios: "padding", android: undefined })}>
-      <ImageBackground source={require("../assets/Background.png")} style={styles.bg} imageStyle={styles.bgImage}>
-        <View style={styles.overlay}>
-          <View style={styles.header}>
-            <Image source={require("../assets/mindhaven-logo.png")} style={styles.logo} resizeMode="contain" />
-          </View>
+    <ImageBackground source={require("../assets/Background.png")} style={styles.bg} imageStyle={styles.bgImage}>
+      <View style={styles.overlay}>
+        <View style={styles.header}>
+          <Image source={require("../assets/mindhaven-logo.png")} style={styles.logo} resizeMode="contain" />
+        </View>
+
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 20 : 0}
+        >
           <ScrollView contentContainerStyle={styles.bottomFill} keyboardShouldPersistTaps="handled">
             <View style={styles.card}>
               <Text style={styles.welcome}>WELCOME.</Text>
 
               <Text style={styles.label}>Name</Text>
-              <TextInput style={styles.input} placeholder="name" value={name} onChangeText={setName} autoCapitalize="words" />
+              <TextInput
+                style={styles.input}
+                placeholder="name"
+                value={name}
+                onChangeText={setName}
+                autoCapitalize="words"
+              />
 
               <Text style={styles.label}>Email</Text>
               <TextInput
@@ -104,13 +114,17 @@ export default function SignUpScreen() {
 
               <View style={styles.divider} />
 
-              <Pressable style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]} onPress={onSubmit} disabled={loading}>
-                {loading ? <ActivityIndicator color="#ffffffff" /> : <Text style={styles.buttonText}>SIGN UP</Text>}
+              <Pressable
+                style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
+                onPress={onSubmit}
+                disabled={loading}
+              >
+                {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>SIGN UP</Text>}
               </Pressable>
             </View>
           </ScrollView>
-        </View>
-      </ImageBackground>
-    </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </View>
+    </ImageBackground>
   );
 }

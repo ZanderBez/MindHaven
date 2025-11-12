@@ -34,6 +34,7 @@ export default function App() {
           screenOptions={{
             headerShown: false,
             contentStyle: { backgroundColor: "#1C1C1C" },
+            gestureEnabled: false, 
           }}
         >
           <Stack.Screen name="Splash" component={SplashScreenView} />

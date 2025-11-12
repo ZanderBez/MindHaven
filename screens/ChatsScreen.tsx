@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, FlatList, Pressable, Text, TouchableOpacity, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -7,6 +7,9 @@ import GlobalBackground from "../components/GlobalBackground";
 import BottomNav from "../components/BottomNav";
 import { styles } from "../styles/chat";
 import { useChats } from "../hooks/useChats";
+import { getAuth } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase";
 import type { Chat } from "../services/chatService";
 
 function AvatarText({ label }: { label: string }) {
@@ -20,14 +23,31 @@ function AvatarText({ label }: { label: string }) {
 export default function ChatsScreen() {
   const nav = useNavigation<any>();
   const { uid, chats, creating, fmtDate, newSession, removeChat } = useChats();
+  const [buddyName, setBuddyName] = useState("Therapy Buddy");
 
-  function openChat(c: Chat) {
-    nav.navigate("ChatRoom", { chatId: c.id, title: c.title ?? "Chat" });
-  }
+  useEffect(() => {
+    const fetchBuddyName = async () => {
+      const auth = getAuth();
+      const user = auth.currentUser;
+      if (user) {
+        const ref = doc(db, "users", user.uid);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data();
+          if (data.buddyName) setBuddyName(data.buddyName);
+        }
+      }
+    };
+    fetchBuddyName();
+  }, []);
 
   async function handleNew() {
-    const chatId = await newSession();
-    if (chatId) nav.navigate("ChatRoom", { chatId, title: "Therapy Buddy" });
+    const chatId = await newSession(buddyName);
+    if (chatId) nav.navigate("ChatRoom", { chatId, title: buddyName });
+  }
+
+  function openChat(c: Chat) {
+    nav.navigate("ChatRoom", { chatId: c.id, title: c.title ?? buddyName });
   }
 
   function confirmDelete(id: string) {
@@ -53,14 +73,14 @@ export default function ChatsScreen() {
           <Text style={styles.heading}>Chats</Text>
 
           <TouchableOpacity style={styles.newChatBtn} onPress={handleNew} disabled={!uid || creating}>
-            <Text style={styles.newChatText}>{creating ? "Starting..." : "Start a New Session"}</Text>
+            <Text style={styles.newChatText}>{creating ? "Starting..." : `Start a New Session with ${buddyName}`}</Text>
           </TouchableOpacity>
 
           {chats.length === 0 ? (
             <View style={styles.listCard}>
               <View style={styles.emptyWrap}>
                 <Text style={styles.emptyTitle}>No chats yet</Text>
-                <Text style={styles.emptySub}>Begin a conversation with your Therapy Buddy</Text>
+                <Text style={styles.emptySub}>Begin a conversation with {buddyName}</Text>
               </View>
             </View>
           ) : (
@@ -77,9 +97,9 @@ export default function ChatsScreen() {
                   return (
                     <View style={styles.row}>
                       <Pressable onPress={() => openChat(item)} style={styles.rowPressable}>
-                        <AvatarText label={(item.title?.[0] ?? "T").toUpperCase()} />
+                        <AvatarText label={(item.title?.[0] ?? buddyName[0]).toUpperCase()} />
                         <View style={styles.textCol}>
-                          <Text style={styles.title}>{item.title ?? "Conversation"}</Text>
+                          <Text style={styles.title}>{item.title ?? buddyName}</Text>
                           <Text style={styles.subtitle} numberOfLines={1}>
                             {item.lastMessage ?? "Start the conversation…"}
                           </Text>
