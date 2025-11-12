@@ -1,52 +1,64 @@
-import { View, Text, Image, StyleSheet } from "react-native";
+import { View, Text, Image, StyleSheet, ActivityIndicator } from "react-native";
+import React, { useState } from "react";
+
+interface Props {
+  role: "user" | "assistant";
+  content: string;
+  avatarUri?: string | null;
+  avatarSource?: any;
+  label?: string;
+  fallbackLetter?: string;
+}
 
 export default function MessageBubble({
   role,
   content,
   avatarUri,
   avatarSource,
-  label
-}: {
-  role: "user" | "assistant";
-  content: string;
-  avatarUri?: string | null;
-  avatarSource?: any;
-  label?: string;
-}) {
+  label,
+  fallbackLetter
+}: Props) {
   const isUser = role === "user";
+  const [loading, setLoading] = useState(Boolean(avatarUri || avatarSource));
+
+  const renderAvatar = () => {
+    if (!avatarUri && !avatarSource) {
+      return (
+        <View style={isUser ? styles.userFallback : styles.avatarFallback}>
+          <Text style={isUser ? styles.userFallbackText : styles.avatarFallbackText}>
+            {fallbackLetter ?? (isUser ? "U" : "T")}
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.avatarWrap}>
+        {loading && (
+          <ActivityIndicator
+            size="small"
+            color="#FFF"
+            style={StyleSheet.absoluteFill}
+          />
+        )}
+        <Image
+          source={avatarSource ?? { uri: avatarUri! }}
+          style={styles.avatar}
+          onLoadStart={() => setLoading(true)}
+          onLoadEnd={() => setLoading(false)}
+        />
+      </View>
+    );
+  };
 
   return (
     <View style={[styles.row, isUser ? styles.right : styles.left]}>
-      {!isUser && (
-        <View style={styles.avatarWrap}>
-          {avatarSource ? (
-            <Image source={avatarSource} style={styles.avatar} />
-          ) : avatarUri ? (
-            <Image source={{ uri: avatarUri }} style={styles.avatar} />
-          ) : (
-            <View style={styles.avatarFallback}>
-              <Text style={styles.avatarFallbackText}>TB</Text>
-            </View>
-          )}
-        </View>
-      )}
-
+      {!isUser && renderAvatar()}
       <View style={[styles.bubble, isUser ? styles.userBubble : styles.botBubble]}>
         {!!label && <Text style={styles.label}>{label}</Text>}
         <Text style={styles.text}>{content}</Text>
       </View>
-
-      {isUser && (
-        <View style={styles.avatarWrap}>
-          {avatarUri ? (
-            <Image source={{ uri: avatarUri }} style={styles.avatar} />
-          ) : (
-            <View style={styles.userFallback}>
-              <Text style={styles.userFallbackText}>U</Text>
-            </View>
-          )}
-        </View>
-      )}
+      {isUser && renderAvatar()}
     </View>
   );
 }
@@ -67,8 +79,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end"
   },
   avatarWrap: {
-    width: 28,
-    height: 28
+    width: 28
   },
   avatar: {
     width: 28,

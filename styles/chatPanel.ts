@@ -97,7 +97,7 @@ export const styles = StyleSheet.create({
     borderRadius: 16,
     backgroundColor: "rgba(255,255,255,0.16)",
     padding: 8,
-    marginTop: 8
+    marginTop: 15
   },
   inputRow: {
     position: "relative",
