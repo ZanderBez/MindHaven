@@ -33,7 +33,7 @@ export default function ChatsScreen() {
         const ref = doc(db, "users", user.uid);
         const snap = await getDoc(ref);
         if (snap.exists()) {
-          const data = snap.data();
+          const data = snap.data() as any;
           if (data.buddyName) setBuddyName(data.buddyName);
         }
       }
@@ -47,7 +47,10 @@ export default function ChatsScreen() {
   }
 
   function openChat(c: Chat) {
-    nav.navigate("ChatRoom", { chatId: c.id, title: c.title ?? buddyName });
+    const displayTitle =
+      c.title === "therapist-bot" ? buddyName : c.title ?? buddyName;
+
+    nav.navigate("ChatRoom", { chatId: c.id, title: displayTitle });
   }
 
   function confirmDelete(id: string) {
@@ -72,15 +75,23 @@ export default function ChatsScreen() {
         <View style={styles.pagePad}>
           <Text style={styles.heading}>Chats</Text>
 
-          <TouchableOpacity style={styles.newChatBtn} onPress={handleNew} disabled={!uid || creating}>
-            <Text style={styles.newChatText}>{creating ? "Starting..." : `Start a New Session with ${buddyName}`}</Text>
+          <TouchableOpacity
+            style={styles.newChatBtn}
+            onPress={handleNew}
+            disabled={!uid || creating}
+          >
+            <Text style={styles.newChatText}>
+              {creating ? "Starting..." : `Start a New Session with ${buddyName}`}
+            </Text>
           </TouchableOpacity>
 
           {chats.length === 0 ? (
             <View style={styles.listCard}>
               <View style={styles.emptyWrap}>
                 <Text style={styles.emptyTitle}>No chats yet</Text>
-                <Text style={styles.emptySub}>Begin a conversation with {buddyName}</Text>
+                <Text style={styles.emptySub}>
+                  Begin a conversation with {buddyName}
+                </Text>
               </View>
             </View>
           ) : (
@@ -93,13 +104,23 @@ export default function ChatsScreen() {
                 contentContainerStyle={styles.listContent}
                 ItemSeparatorComponent={() => <View style={styles.sep} />}
                 renderItem={({ item }) => {
-                  const when = item.createdAt || item.lastMessageAt || item.updatedAt || null;
+                  const when =
+                    item.createdAt || item.lastMessageAt || item.updatedAt || null;
+
+                  const displayTitle =
+                    item.title === "therapist-bot"
+                      ? buddyName
+                      : item.title ?? buddyName;
+
                   return (
                     <View style={styles.row}>
-                      <Pressable onPress={() => openChat(item)} style={styles.rowPressable}>
-                        <AvatarText label={(item.title?.[0] ?? buddyName[0]).toUpperCase()} />
+                      <Pressable
+                        onPress={() => openChat(item)}
+                        style={styles.rowPressable}
+                      >
+                        <AvatarText label={displayTitle[0].toUpperCase()} />
                         <View style={styles.textCol}>
-                          <Text style={styles.title}>{item.title ?? buddyName}</Text>
+                          <Text style={styles.title}>{displayTitle}</Text>
                           <Text style={styles.subtitle} numberOfLines={1}>
                             {item.lastMessage ?? "Start the conversation…"}
                           </Text>

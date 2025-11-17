@@ -107,7 +107,7 @@ export default function OnboardingOverlay({ visible, onClose }: Props) {
 
                 {s.isBuddyName && (
                   <View style={{ marginTop: 20, flexDirection: "row", justifyContent: "space-around" }}>
-                    {["Luna", "Kai", "Echo"].map((name) => (
+                    {["Ray", "Ember", "Willow"].map((name) => (
                       <TouchableOpacity
                         key={name}
                         onPress={() => setBuddyName(name)}

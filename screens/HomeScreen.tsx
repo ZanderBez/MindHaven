@@ -3,7 +3,8 @@ import { View, ScrollView, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 import GlobalBackground from "../components/GlobalBackground";
 import BottomNav from "../components/BottomNav";
 import HomeHeader from "../components/HomeHeader";
@@ -25,6 +26,23 @@ export default function HomeScreen() {
   const { recentChats, notes } = useHomeStreams(uid);
   const [ready, setReady] = useState(false);
   const [showOnboard, setShowOnboard] = useState(false);
+  const [buddyName, setBuddyName] = useState("Therapy Buddy");
+
+    useEffect(() => {
+    const fetchBuddyName = async () => {
+      const user = auth.currentUser;
+      if (user) {
+        const ref = doc(db, "users", user.uid);
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data() as any;
+          if (data.buddyName) setBuddyName(data.buddyName);
+        }
+      }
+    };
+    fetchBuddyName();
+  }, []);
+
 
   useEffect(() => {
     let alive = true;
@@ -75,12 +93,12 @@ export default function HomeScreen() {
         >
           <HomeHeader greeting={greeting} name={name} photoURL={photoURL} />
             <MotivationQuote/>
-          <InputComposer
-            uid={uid}
-            placeholder="Type Your Message"
-            enableMic
-            onSessionStarted={(chatId) => navigation.navigate("ChatRoom", { chatId, title: "Therapy Buddy" })}
-          />
+            <InputComposer
+              uid={uid}
+              placeholder="Type Your Message"
+              enableMic
+              onSessionStarted={(chatId) => navigation.navigate("ChatRoom", { chatId, title: "Therapy Buddy" })}
+            />
 
           <RecentChats
             rows={recentChats}
